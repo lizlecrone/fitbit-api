@@ -1,0 +1,3 @@
+pip install requests requests_oauthlib
+pip install pytest
+pip install mock
