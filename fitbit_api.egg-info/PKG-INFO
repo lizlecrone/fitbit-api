@@ -1,0 +1,15 @@
+Metadata-Version: 2.1
+Name: fitbit-api
+Version: 0.0.1
+Summary: Fitbit API Client
+Home-page: https://github.com/lizlecrone/fitbit-api
+Author: Liz LeCrone
+Author-email: lizlecrone@gmail.com
+License: UNKNOWN
+Description: # TBD
+Platform: UNKNOWN
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.6
+Description-Content-Type: text/markdown
