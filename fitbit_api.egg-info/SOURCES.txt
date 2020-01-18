@@ -1,5 +1,6 @@
 README.md
 setup.py
+fitbit_api/__init__.py
 fitbit_api.egg-info/PKG-INFO
 fitbit_api.egg-info/SOURCES.txt
 fitbit_api.egg-info/dependency_links.txt

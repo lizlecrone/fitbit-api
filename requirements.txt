@@ -1,3 +1,6 @@
 pip install requests requests_oauthlib
 pip install pytest
 pip install mock
+
+TODO finish requirements
+TODO update api_converter to write to new __init__ file inside fitbit_api
