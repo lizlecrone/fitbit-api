@@ -26,16 +26,13 @@ class RateLimitException(FitbitException):
 		super().__init__(*args, **kwargs)
 
 class FitbitClient:
-	OAuth2Session = OAuth2Session
-	authorization_endpoint_url = 'https://www.fitbit.com/oauth2/authorize'
-
 	def __init__(self, session):
 		self.session = session
 
 	@classmethod
 	def create_using_token(cls, token, client_id, callback_uri, scope=None, new_token_callback=None):
 		scope = scope or ALL_SCOPES
-		session = cls.OAuth2Session(
+		session = OAuth2Session(
 			client_id=client_id,
 			redirect_uri=callback_uri,
 			scope=scope,
@@ -47,14 +44,14 @@ class FitbitClient:
 	@classmethod
 	def OAuth2_step_one(cls, client_id, callback_uri, scope=None):
 		scope = scope or ALL_SCOPES
-		session = cls.OAuth2Session(client_id=client_id, redirect_uri=callback_uri, scope=scope)
-		authorization_url, state = session.authorization_url(cls.authorization_endpoint_url)
+		session = OAuth2Session(client_id=client_id, redirect_uri=callback_uri, scope=scope)
+		authorization_url, state = session.authorization_url('https://www.fitbit.com/oauth2/authorize')
 		return authorization_url
 
 	@classmethod
 	def OAuth2_step_two(cls, client_id, client_secret, callback_uri, redirect_uri, scope=None, new_token_callback=None):
 		scope = scope or ALL_SCOPES
-		session = cls.OAuth2Session(
+		session = OAuth2Session(
 			client_id=client_id,
 			redirect_uri=callback_uri,
 			scope=scope,

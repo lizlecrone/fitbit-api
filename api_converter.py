@@ -1,5 +1,4 @@
 import json
-from pprint import pprint
 from jinja2 import Environment, FileSystemLoader
 
 def camel_to_snake_case(str):
@@ -44,7 +43,7 @@ template = env.get_template('fitbit_api.jinja')
 output_from_parsed_template = template.render(apis=apis)
 
 #print the result of above to python file
-with open('fitbit_api.py', 'w') as python_file:
+with open('fitbit_api/__init__.py', 'w') as python_file:
     python_file.write(output_from_parsed_template)
 
 
