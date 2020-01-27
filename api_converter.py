@@ -22,6 +22,8 @@ for endpoint in endpoints:
 		parameters = endpoint_data['parameters'] if 'parameters' in endpoint_data else []
 		for parameter in parameters:
 			parameter['python_name'] = kabob_to_snake_case(parameter['name'])
+			if 'format' in parameter and parameter['format'] == 'date':
+				parameter['description'] = 'A datetime object.'
 		date_parameters = [parameter for parameter in parameters if 'format' in parameter and parameter['format']== 'date']
 
 		#load the jinja file with variables

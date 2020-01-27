@@ -1,7 +1,9 @@
 # TBD
 
 TODO
-git ignore
 update this readme
-website? readthedocs/pypi docs
+upload documentation
+understand enums in Fitbit API to document and validate properly
 tests of API endpoint logic
+Insufficient Scope Exception does not return actionable information programmatically
+Get a pep8 linter

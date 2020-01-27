@@ -2,122 +2,139 @@ from datetime import datetime
 from requests_oauthlib import OAuth2Session
 
 ALL_SCOPES = [
-	"activity",
-	"nutrition",
-	"heartrate",
-	"location",
-	"nutrition",
-	"profile",
-	"settings",
-	"sleep",
-	"social",
-	"weight",
+    "activity",
+    "nutrition",
+    "heartrate",
+    "location",
+    "nutrition",
+    "profile",
+    "settings",
+    "sleep",
+    "social",
+    "weight",
 ]
+"""All available scopes for initializing Fitbit client"""
 
 class FitbitException(Exception):
-	pass
+    """All other exceptions subclass this FitbitException."""
+    pass
 
 class InsufficientScope(FitbitException):
-	pass
+    """Thrown when your client was not initialized with the necessary scopes to make this request"""
+    pass
 
 class RateLimitException(FitbitException):
-	def __init__(self, retry_after, *args, **kwargs):
-		self.retry_after = retry_after
-		super().__init__(*args, **kwargs)
+    """Thrown when you've exceeded the limit
+
+    Fitbit only allows 150 requests per hour per client. ::
+
+        try:
+            client.get_foods_goal()
+        except RateLimitException as e:
+            print('Seconds until we can try again:' e.retry_after)
+    """
+    def __init__(self, retry_after, *args, **kwargs):
+        self.retry_after = retry_after
+        super().__init__(*args, **kwargs)
 
 class FitbitClient:
-	def __init__(self, session):
-		self.session = session
+    """
+    """
+    def __init__(self, session):
+        self.session = session
 
-	@classmethod
-	def create_using_token(cls, token, client_id, callback_uri, scope=None, new_token_callback=None):
-		scope = scope or ALL_SCOPES
-		session = OAuth2Session(
-			client_id=client_id,
-			redirect_uri=callback_uri,
-			scope=scope,
-			token=token,
-			token_updater=new_token_callback,
-		)
-		return cls(session)
+    @classmethod
+    def create_using_token(cls, token, client_id, callback_uri, scope=None, new_token_callback=None):
+        scope = scope or ALL_SCOPES
+        session = OAuth2Session(
+            client_id=client_id,
+            redirect_uri=callback_uri,
+            scope=scope,
+            token=token,
+            token_updater=new_token_callback,
+        )
+        return cls(session)
 
-	@classmethod
-	def OAuth2_step_one(cls, client_id, callback_uri, scope=None):
-		scope = scope or ALL_SCOPES
-		session = OAuth2Session(client_id=client_id, redirect_uri=callback_uri, scope=scope)
-		authorization_url, state = session.authorization_url('https://www.fitbit.com/oauth2/authorize')
-		return authorization_url
+    @classmethod
+    def OAuth2_step_one(cls, client_id, callback_uri, scope=None):
+        scope = scope or ALL_SCOPES
+        session = OAuth2Session(client_id=client_id, redirect_uri=callback_uri, scope=scope)
+        authorization_url, state = session.authorization_url('https://www.fitbit.com/oauth2/authorize')
+        return authorization_url
 
-	@classmethod
-	def OAuth2_step_two(cls, client_id, client_secret, callback_uri, redirect_uri, scope=None, new_token_callback=None):
-		scope = scope or ALL_SCOPES
-		session = OAuth2Session(
-			client_id=client_id,
-			redirect_uri=callback_uri,
-			scope=scope,
-			token_updater=new_token_callback,
-		)
-		token = session.fetch_token(
-			'https://api.fitbit.com/oauth2/token',
-			authorization_response=redirect_uri,
-			client_secret=client_secret
-		)
-		new_token_callback(token)
-		return cls(session)
+    @classmethod
+    def OAuth2_step_two(cls, client_id, client_secret, callback_uri, redirect_uri, scope=None, new_token_callback=None):
+        scope = scope or ALL_SCOPES
+        session = OAuth2Session(
+            client_id=client_id,
+            redirect_uri=callback_uri,
+            scope=scope,
+            token_updater=new_token_callback,
+        )
+        token = session.fetch_token(
+            'https://api.fitbit.com/oauth2/token',
+            authorization_response=redirect_uri,
+            client_secret=client_secret
+        )
+        new_token_callback(token)
+        return cls(session)
 
-	def request(self, method, endpoint, params=None, full_response=False):
-		url = 'https://api.fitbit.com'+endpoint
-		params = params or {}
-		response = self.session.request(method, url, params=params)
-		if full_response:
-			return response
-		if response.ok:
-			return response.json()
-		elif response.status_code == 429:
-			raise RateLimitException(retry_after=response.headers['Retry-After'])
+    def request(self, method, endpoint, params=None, full_response=False):
+        url = 'https://api.fitbit.com'+endpoint
+        params = params or {}
+        response = self.session.request(method, url, params=params)
+        if full_response:
+            return response
+        if response.ok:
+            return response.json()
+        elif response.status_code == 429:
+            raise RateLimitException(retry_after=response.headers['Retry-After'])
 
-	def get(self, endpoint, params=None, **kwargs):
-		return self.request('get', endpoint, params, **kwargs)
+    def get(self, endpoint, params=None, **kwargs):
+        return self.request('get', endpoint, params, **kwargs)
 
-	def post(self, endpoint, params=None, **kwargs):
-		return self.request('post', endpoint, params, **kwargs)
+    def post(self, endpoint, params=None, **kwargs):
+        return self.request('post', endpoint, params, **kwargs)
 
-	def delete(self, endpoint, params=None, **kwargs):
-		return self.request('delete', endpoint, params, **kwargs)
+    def delete(self, endpoint, params=None, **kwargs):
+        return self.request('delete', endpoint, params, **kwargs)
 
-	def put(self, endpoint, params=None, **kwargs):
-		return self.request('put', endpoint, params, **kwargs)
+    def put(self, endpoint, params=None, **kwargs):
+        return self.request('put', endpoint, params, **kwargs)
 
 {% for api in apis %}
-	def {{ api.function }}(self{% for parameter in api.parameters %}, {{ parameter.python_name }}{% if not parameter.required %}=None{% endif %}{% endfor %}, **kwargs):
-		'''{{ api.summary }}
+    def {{ api.function }}(self{% for parameter in api.parameters %}, {{ parameter.python_name }}{% if not parameter.required %}=None{% endif %}{% endfor %}, **kwargs):
+        '''{{ api.summary }}
 
-		{{ api.description }}
-		'''
-	{%- for date in api.date_parameters %}
-		if {% if not date.required %}{{ date.python_name }} and {% endif %}not isinstance({{ date.python_name }}, datetime):
-			raise ValueError('Argument \'{{ date.python_name }}\' must be a datetime object.')
-		{{ date.python_name }} = {{ date.python_name }}.strftime('%Y-%m-%d') if {{ date.python_name }} else ''
-	{% endfor %}
-		required_scope = set({{ api.required_scope }})
-		if not all(scope in self.session.scope for scope in required_scope):
-			missing_scope = [scope for scope in required_scope if scope not in self.session.scope]
-			raise InsufficientScope('This application needs additional scope {missing_scope} for this request.'.format(missing_scope=missing_scope))
+        {{ api.description }}
 
-		endpoint = '{{ api.endpoint }}'{% for parameter in api.path_params %}.replace('{{ '{' }}{{ parameter.name }}{{ '}' }}', {{ parameter.python_name }}){% endfor %}
-		{%- if api.query_params %}
-		params = {}
-		{%- for param in api.query_params %}
-		{%- if not param.required %}
-		if {{ param.python_name }}:
-			params['{{ param.name }}'] = {{ param.python_name }}
-		{%- else %}
-		params['{{ param.name }}'] = {{ param.python_name }}
-		{%- endif %}
-		{%- endfor %}
-		return self.{{ api.method }}(endpoint, params=params, **kwargs)
-		{%- else %}
+        {% for parameter in api.parameters %}:param {{ parameter.python_name }}: {{ parameter.description }}
+        {% endfor %}
+        '''
+    {%- for date in api.date_parameters %}
+        if {% if not date.required %}{{ date.python_name }} and {% endif %}not isinstance({{ date.python_name }}, datetime):
+            raise ValueError('Argument \'{{ date.python_name }}\' must be a datetime object.')
+        {{ date.python_name }} = {{ date.python_name }}.strftime('%Y-%m-%d') if {{ date.python_name }} else ''
+    {% endfor %}
+        required_scope = set({{ api.required_scope }})
+        if not all(scope in self.session.scope for scope in required_scope):
+            missing_scope = [scope for scope in required_scope if scope not in self.session.scope]
+            raise InsufficientScope('This application needs additional scope {missing_scope} for this request.'.format(missing_scope=missing_scope))
 
-		return self.{{ api.method }}(endpoint, **kwargs)
-		{%- endif %}
+        endpoint = '{{ api.endpoint }}'{% for parameter in api.path_params %}.replace('{{ '{' }}{{ parameter.name }}{{ '}' }}', {{ parameter.python_name }}){% endfor %}
+        {%- if api.query_params %}
+        params = {}
+        {%- for param in api.query_params %}
+        {%- if not param.required %}
+        if {{ param.python_name }}:
+            params['{{ param.name }}'] = {{ param.python_name }}
+        {%- else %}
+        params['{{ param.name }}'] = {{ param.python_name }}
+        {%- endif %}
+        {%- endfor %}
+        return self.{{ api.method }}(endpoint, params=params, **kwargs)
+        {%- else %}
+
+        return self.{{ api.method }}(endpoint, **kwargs)
+        {%- endif %}
 {% endfor %}
