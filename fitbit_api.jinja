@@ -108,7 +108,7 @@ class FitbitClient:
 
         {{ api.description }}
 
-        {% for parameter in api.parameters %}:param {{ parameter.python_name }}: {{ parameter.description }}
+        {% for parameter in api.parameters %}:param {{ parameter.python_name }}: {{ parameter.description }} {% if parameter.enum %}Possible values: {{ parameter.enum }}{% endif %}
         {% endfor %}
         '''
     {%- for date in api.date_parameters %}
@@ -116,6 +116,13 @@ class FitbitClient:
             raise ValueError('Argument \'{{ date.python_name }}\' must be a datetime object.')
         {{ date.python_name }} = {{ date.python_name }}.strftime('%Y-%m-%d') if {{ date.python_name }} else ''
     {% endfor %}
+    {%- for parameter in api.parameters %}
+        {%- if parameter.enum %}
+        enum = {{ parameter.enum }}
+        if {{ parameter.python_name }} not in enum:
+            raise ValueError('Argument \'{{ parameter.python_name}}\' must be one of the following: {}'.format(enum))
+        {% endif %}
+    {%- endfor %}
         required_scope = set({{ api.required_scope }})
         if not all(scope in self.session.scope for scope in required_scope):
             missing_scope = [scope for scope in required_scope if scope not in self.session.scope]
