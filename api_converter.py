@@ -8,6 +8,9 @@ def camel_to_snake_case(str):
 def kabob_to_snake_case(str):
 	return str.replace('-','_')
 
+def is_date(parameter):
+	return (parameter.get('format') == 'date') or ('yyyy-MM-dd' in parameter.get('description'))
+
 #attempt to read fitbit's json
 fitbit_api_json = ''
 with open('fitbit_api.json', 'r') as file:
@@ -21,10 +24,10 @@ for endpoint in endpoints:
 		endpoint_data = fitbit_api_json['paths'][endpoint][method]
 		parameters = endpoint_data['parameters'] if 'parameters' in endpoint_data else []
 		for parameter in parameters:
-			parameter['python_name'] = kabob_to_snake_case(parameter['name'])
-			if 'format' in parameter and parameter['format'] == 'date':
+			parameter['python_name'] = camel_to_snake_case(kabob_to_snake_case(parameter['name']))
+			if is_date(parameter):
 				parameter['description'] = 'A datetime object.'
-		date_parameters = [parameter for parameter in parameters if 'format' in parameter and parameter['format']== 'date']
+		date_parameters = [parameter for parameter in parameters if is_date(parameter)]
 
 		#load the jinja file with variables
 		apis.append({

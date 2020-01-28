@@ -1,6 +1,10 @@
 # TBD
 
 TODO
+validate booleans
+validate integers
+document types and optionality
+two dates that aren't format: date
 update this readme
 upload documentation
 tests of API endpoint logic

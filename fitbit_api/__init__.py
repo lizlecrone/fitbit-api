@@ -362,19 +362,19 @@ class FitbitClient:
 
         return self.get(endpoint, **kwargs)
 
-    def add_activities_log(self, activityId, manualCalories, startTime, durationMillis, date, distance, activityName=None, distanceUnit=None, **kwargs):
+    def add_activities_log(self, activity_id, manual_calories, start_time, duration_millis, date, distance, activity_name=None, distance_unit=None, **kwargs):
         '''Log Activity
 
         The Log Activity endpoint creates log entry for an activity or user's private custom activity using units in the unit system which corresponds to the Accept-Language header provided (or using optional custom distanceUnit) and get a response in the format requested.
 
-        :param activityId: The ID of the activity, directory activity or intensity level activity. 
-        :param manualCalories: Calories burned that are manaully specified. Required with activityName must be provided. 
-        :param startTime: Activity start time. Hours and minutes in the format HH:mm:ss. 
-        :param durationMillis: Duration in milliseconds. 
+        :param activity_id: The ID of the activity, directory activity or intensity level activity. 
+        :param manual_calories: Calories burned that are manaully specified. Required with activityName must be provided. 
+        :param start_time: Activity start time. Hours and minutes in the format HH:mm:ss. 
+        :param duration_millis: Duration in milliseconds. 
         :param date: A datetime object. 
         :param distance: Distance is required for logging directory activity in the format X.XX and in the selected distanceUnit. 
-        :param activityName: Custom activity name. Either activityId or activityName must be provided. 
-        :param distanceUnit: Distance measurement unit. Steps units are available only for Walking (activityId=90013) and Running (activityId=90009) directory activities and their intensity levels. 
+        :param activity_name: Custom activity name. Either activityId or activityName must be provided. 
+        :param distance_unit: Distance measurement unit. Steps units are available only for Walking (activityId=90013) and Running (activityId=90009) directory activities and their intensity levels. 
         
         '''
         if not isinstance(date, datetime):
@@ -388,16 +388,16 @@ class FitbitClient:
 
         endpoint = '/1/user/-/activities.json'
         params = {}
-        params['activityId'] = activityId
-        if activityName:
-            params['activityName'] = activityName
-        params['manualCalories'] = manualCalories
-        params['startTime'] = startTime
-        params['durationMillis'] = durationMillis
+        params['activityId'] = activity_id
+        if activity_name:
+            params['activityName'] = activity_name
+        params['manualCalories'] = manual_calories
+        params['startTime'] = start_time
+        params['durationMillis'] = duration_millis
         params['date'] = date
         params['distance'] = distance
-        if distanceUnit:
-            params['distanceUnit'] = distanceUnit
+        if distance_unit:
+            params['distanceUnit'] = distance_unit
         return self.post(endpoint, params=params, **kwargs)
 
     def get_activities_log(self, **kwargs):
@@ -433,7 +433,7 @@ class FitbitClient:
 
         return self.delete(endpoint, **kwargs)
 
-    def get_activities_log_list(self, sort, offset, limit, beforeDate=None, afterDate=None, **kwargs):
+    def get_activities_log_list(self, sort, offset, limit, before_date=None, after_date=None, **kwargs):
         '''Get Activity Log List
 
         Retreives a list of user's activity log entries before or after a given day with offset and limit using units in the unit system which corresponds to the Accept-Language header provided.
@@ -441,17 +441,17 @@ class FitbitClient:
         :param sort: The sort order of entries by date asc (ascending) or desc (descending). 
         :param offset: The offset number of entries. 
         :param limit: The maximum number of entries returned (maximum;100). 
-        :param beforeDate: A datetime object. 
-        :param afterDate: A datetime object. 
+        :param before_date: A datetime object. 
+        :param after_date: A datetime object. 
         
         '''
-        if beforeDate and not isinstance(beforeDate, datetime):
-            raise ValueError('Argument \'beforeDate\' must be a datetime object.')
-        beforeDate = beforeDate.strftime('%Y-%m-%d') if beforeDate else ''
+        if before_date and not isinstance(before_date, datetime):
+            raise ValueError('Argument \'before_date\' must be a datetime object.')
+        before_date = before_date.strftime('%Y-%m-%d') if before_date else ''
     
-        if afterDate and not isinstance(afterDate, datetime):
-            raise ValueError('Argument \'afterDate\' must be a datetime object.')
-        afterDate = afterDate.strftime('%Y-%m-%d') if afterDate else ''
+        if after_date and not isinstance(after_date, datetime):
+            raise ValueError('Argument \'after_date\' must be a datetime object.')
+        after_date = after_date.strftime('%Y-%m-%d') if after_date else ''
     
         required_scope = set(['activity', 'heartrate', 'location', 'nutrition', 'profile', 'settings', 'sleep', 'social', 'weight'])
         if not all(scope in self.session.scope for scope in required_scope):
@@ -460,22 +460,22 @@ class FitbitClient:
 
         endpoint = '/1/user/-/activities/list.json'
         params = {}
-        if beforeDate:
-            params['beforeDate'] = beforeDate
-        if afterDate:
-            params['afterDate'] = afterDate
+        if before_date:
+            params['beforeDate'] = before_date
+        if after_date:
+            params['afterDate'] = after_date
         params['sort'] = sort
         params['offset'] = offset
         params['limit'] = limit
         return self.get(endpoint, params=params, **kwargs)
 
-    def get_activities_t_c_x(self, log_id, includePartialTCX=None, **kwargs):
+    def get_activities_t_c_x(self, log_id, include_partial_t_c_x=None, **kwargs):
         '''Get Activity TCX
 
         Retreives the details of a user's location and heart rate data during a logged exercise activity.
 
         :param log_id: The activity's log ID. 
-        :param includePartialTCX: Include TCX points regardless of GPS data being present 
+        :param include_partial_t_c_x: Include TCX points regardless of GPS data being present 
         
         '''
         required_scope = set(['activity', 'heartrate', 'location', 'nutrition', 'profile', 'settings', 'sleep', 'social', 'weight'])
@@ -485,8 +485,8 @@ class FitbitClient:
 
         endpoint = '/1/user/-/activities/{log-id}.tcx'.replace('{log-id}', log_id)
         params = {}
-        if includePartialTCX:
-            params['includePartialTCX'] = includePartialTCX
+        if include_partial_t_c_x:
+            params['includePartialTCX'] = include_partial_t_c_x
         return self.get(endpoint, params=params, **kwargs)
 
     def get_activities_types(self, **kwargs):
@@ -847,13 +847,13 @@ class FitbitClient:
         params['fat'] = fat
         return self.post(endpoint, params=params, **kwargs)
 
-    def update_weight_goal(self, startDate, startWeight, weight=None, **kwargs):
+    def update_weight_goal(self, start_date, start_weight, weight=None, **kwargs):
         '''Update Weight Goal
 
         Updates user's fat percentage goal.
 
-        :param startDate: Weight goal start date; in the format yyyy-MM-dd. 
-        :param startWeight: Weight goal start weight; in the format X.XX, in the unit systems that corresponds to the Accept-Language header provided. 
+        :param start_date: A datetime object. 
+        :param start_weight: Weight goal start weight; in the format X.XX, in the unit systems that corresponds to the Accept-Language header provided. 
         :param weight: Weight goal target weight; in the format X.XX, in the unit systems that corresponds to the Accept-Language header provided; required if user doesn't have an existing weight goal. 
         
         '''
@@ -864,8 +864,8 @@ class FitbitClient:
 
         endpoint = '/1/user/-/body/log/weight/goal.json'
         params = {}
-        params['startDate'] = startDate
-        params['startWeight'] = startWeight
+        params['startDate'] = start_date
+        params['startWeight'] = start_weight
         if weight:
             params['weight'] = weight
         return self.post(endpoint, params=params, **kwargs)
@@ -1016,7 +1016,7 @@ class FitbitClient:
 
         return self.get(endpoint, **kwargs)
 
-    def add_alarms(self, tracker_id, time, enabled, recurring, weekDays, **kwargs):
+    def add_alarms(self, tracker_id, time, enabled, recurring, week_days, **kwargs):
         '''Add Alarm
 
         Adds the alarm settings to a given ID for a given device.
@@ -1025,7 +1025,7 @@ class FitbitClient:
         :param time: Time of day that the alarm vibrates with a UTC timezone offset, e.g. 07:15-08:00. 
         :param enabled: true or false. If false, alarm does not vibrate until enabled is set to true. 
         :param recurring: true or false. If false, the alarm is a single event. 
-        :param weekDays: Comma separated list of days of the week on which the alarm vibrates, e.g. MONDAY, TUESDAY. 
+        :param week_days: Comma separated list of days of the week on which the alarm vibrates, e.g. MONDAY, TUESDAY. 
         
         '''
         required_scope = set(['activity', 'heartrate', 'location', 'nutrition', 'profile', 'settings', 'sleep', 'social', 'weight'])
@@ -1038,10 +1038,10 @@ class FitbitClient:
         params['time'] = time
         params['enabled'] = enabled
         params['recurring'] = recurring
-        params['weekDays'] = weekDays
+        params['weekDays'] = week_days
         return self.post(endpoint, params=params, **kwargs)
 
-    def update_alarms(self, tracker_id, alarm_id, time, enabled, recurring, weekDays, snoozeLength, snoozeCount, **kwargs):
+    def update_alarms(self, tracker_id, alarm_id, time, enabled, recurring, week_days, snooze_length, snooze_count, **kwargs):
         '''Update Alarm
 
         Updates the alarm entry with a given ID for a given device. It also gets a response in the format requested.
@@ -1051,9 +1051,9 @@ class FitbitClient:
         :param time: Time of day that the alarm vibrates with a UTC timezone offset, e.g. 07:15-08:00. 
         :param enabled: true or false. If false, the alarm does not vibrate until enabled is set to true. 
         :param recurring: true or false. If false, the alarm is a single event. 
-        :param weekDays: Comma seperated list of days of the week on which the alarm vibrates, e.g. MONDAY, TUESDAY. 
-        :param snoozeLength: Minutes between alarms. 
-        :param snoozeCount: Maximum snooze count. 
+        :param week_days: Comma seperated list of days of the week on which the alarm vibrates, e.g. MONDAY, TUESDAY. 
+        :param snooze_length: Minutes between alarms. 
+        :param snooze_count: Maximum snooze count. 
         
         '''
         required_scope = set(['activity', 'heartrate', 'location', 'nutrition', 'profile', 'settings', 'sleep', 'social', 'weight'])
@@ -1066,9 +1066,9 @@ class FitbitClient:
         params['time'] = time
         params['enabled'] = enabled
         params['recurring'] = recurring
-        params['weekDays'] = weekDays
-        params['snoozeLength'] = snoozeLength
-        params['snoozeCount'] = snoozeCount
+        params['weekDays'] = week_days
+        params['snoozeLength'] = snooze_length
+        params['snoozeCount'] = snooze_count
         return self.post(endpoint, params=params, **kwargs)
 
     def delete_alarms(self, tracker_id, alarm_id, **kwargs):
@@ -1279,19 +1279,19 @@ class FitbitClient:
 
         return self.get(endpoint, **kwargs)
 
-    def add_foods_log(self, foodId, mealTypeId, unitId, amount, date, foodName=None, favorite=None, brandName=None, calories=None, **kwargs):
+    def add_foods_log(self, food_id, meal_type_id, unit_id, amount, date, food_name=None, favorite=None, brand_name=None, calories=None, **kwargs):
         '''Log Food
 
         Creates food log entries for users with or without foodId value.
 
-        :param foodId: The ID of the food to be logged. Either foodId or foodName must be provided. 
-        :param mealTypeId: Meal types. 1=Breakfast; 2=Morning Snack; 3=Lunch; 4=Afternoon Snack; 5=Dinner; 7=Anytime. 
-        :param unitId: The ID of units used. Typically retrieved via a previous call to Get Food Logs, Search Foods, or Get Food Units. 
+        :param food_id: The ID of the food to be logged. Either foodId or foodName must be provided. 
+        :param meal_type_id: Meal types. 1=Breakfast; 2=Morning Snack; 3=Lunch; 4=Afternoon Snack; 5=Dinner; 7=Anytime. 
+        :param unit_id: The ID of units used. Typically retrieved via a previous call to Get Food Logs, Search Foods, or Get Food Units. 
         :param amount: The amount consumed in the format X.XX in the specified unitId. 
         :param date: A datetime object. 
-        :param foodName: Food entry name. Either foodId or foodName must be provided. 
+        :param food_name: Food entry name. Either foodId or foodName must be provided. 
         :param favorite: The `true` value will add the food to the user's favorites after creating the log entry; while the `false` value will not. Valid only with foodId value. 
-        :param brandName: Brand name of food. Valid only with foodName parameters. 
+        :param brand_name: Brand name of food. Valid only with foodName parameters. 
         :param calories: Calories for this serving size. This is allowed with foodName parameter (default to zero); otherwise it is ignored. 
         
         '''
@@ -1306,17 +1306,17 @@ class FitbitClient:
 
         endpoint = '/1/user/-/foods/log.json'
         params = {}
-        params['foodId'] = foodId
-        if foodName:
-            params['foodName'] = foodName
-        params['mealTypeId'] = mealTypeId
-        params['unitId'] = unitId
+        params['foodId'] = food_id
+        if food_name:
+            params['foodName'] = food_name
+        params['mealTypeId'] = meal_type_id
+        params['unitId'] = unit_id
         params['amount'] = amount
         params['date'] = date
         if favorite:
             params['favorite'] = favorite
-        if brandName:
-            params['brandName'] = brandName
+        if brand_name:
+            params['brandName'] = brand_name
         if calories:
             params['calories'] = calories
         return self.post(endpoint, params=params, **kwargs)
@@ -1486,15 +1486,15 @@ class FitbitClient:
 
         return self.get(endpoint, **kwargs)
 
-    def add_meal(self, name, Description, foodId, unitId, amount, **kwargs):
+    def add_meal(self, name, description, food_id, unit_id, amount, **kwargs):
         '''Create Meal
 
         Creates a meal with the given food contained in the post body.
 
         :param name: Name of the meal. 
-        :param Description: Short description of the meal. 
-        :param foodId: ID of the food to be included in the meal. 
-        :param unitId: ID of units used. Typically retrieved via a previous call to Get Food Logs, Search Foods, or Get Food Units. 
+        :param description: Short description of the meal. 
+        :param food_id: ID of the food to be included in the meal. 
+        :param unit_id: ID of units used. Typically retrieved via a previous call to Get Food Logs, Search Foods, or Get Food Units. 
         :param amount: Amount consumed; in the format X.XX, in the specified unitId. 
         
         '''
@@ -1506,22 +1506,22 @@ class FitbitClient:
         endpoint = '/1/user/-/meals.json'
         params = {}
         params['name'] = name
-        params['Description'] = Description
-        params['foodId'] = foodId
-        params['unitId'] = unitId
+        params['Description'] = description
+        params['foodId'] = food_id
+        params['unitId'] = unit_id
         params['amount'] = amount
         return self.post(endpoint, params=params, **kwargs)
 
-    def update_meal(self, meal_id, name, Description, foodId, unitId, amount, **kwargs):
+    def update_meal(self, meal_id, name, description, food_id, unit_id, amount, **kwargs):
         '''Edit Meal
 
         Replaces an existing meal with the contents of the request. The response contains the updated meal.
 
         :param meal_id: Id of the meal to edit. 
         :param name: Name of the meal. 
-        :param Description: Short description of the meal. 
-        :param foodId: ID of the food to be included in the meal. 
-        :param unitId: ID of units used. Typically retrieved via a previous call to Get Food Logs, Search Foods, or Get Food Units. 
+        :param description: Short description of the meal. 
+        :param food_id: ID of the food to be included in the meal. 
+        :param unit_id: ID of units used. Typically retrieved via a previous call to Get Food Logs, Search Foods, or Get Food Units. 
         :param amount: Amount consumed; in the format X.XX, in the specified unitId. 
         
         '''
@@ -1533,9 +1533,9 @@ class FitbitClient:
         endpoint = '/1/user/-/meals/{meal-id}.json'.replace('{meal-id}', meal_id)
         params = {}
         params['name'] = name
-        params['Description'] = Description
-        params['foodId'] = foodId
-        params['unitId'] = unitId
+        params['Description'] = description
+        params['foodId'] = food_id
+        params['unitId'] = unit_id
         params['amount'] = amount
         return self.post(endpoint, params=params, **kwargs)
 
@@ -1572,16 +1572,16 @@ class FitbitClient:
 
         return self.get(endpoint, **kwargs)
 
-    def add_foods(self, name, defaultFoodMeasurementUnitId, defaultServingSize, calories, formType=None, description=None, **kwargs):
+    def add_foods(self, name, default_food_measurement_unit_id, default_serving_size, calories, form_type=None, description=None, **kwargs):
         '''Create Food
 
         Creates a new private food for a user and returns a response in the format requested. The created food is found via the Search Foods call.
 
         :param name: The food name. 
-        :param defaultFoodMeasurementUnitId: The ID of the default measurement unit. Full list of units can be retrieved via the Get Food Units endpoint. 
-        :param defaultServingSize: The size of the default serving. Nutrition values should be provided for this serving size. 
+        :param default_food_measurement_unit_id: The ID of the default measurement unit. Full list of units can be retrieved via the Get Food Units endpoint. 
+        :param default_serving_size: The size of the default serving. Nutrition values should be provided for this serving size. 
         :param calories: The calories in the default serving size. 
-        :param formType: Form type; LIQUID or DRY. 
+        :param form_type: Form type; LIQUID or DRY. 
         :param description: The description of the food. 
         
         '''
@@ -1593,11 +1593,11 @@ class FitbitClient:
         endpoint = '/1/user/-/foods.json'
         params = {}
         params['name'] = name
-        params['defaultFoodMeasurementUnitId'] = defaultFoodMeasurementUnitId
-        params['defaultServingSize'] = defaultServingSize
+        params['defaultFoodMeasurementUnitId'] = default_food_measurement_unit_id
+        params['defaultServingSize'] = default_serving_size
         params['calories'] = calories
-        if formType:
-            params['formType'] = formType
+        if form_type:
+            params['formType'] = form_type
         if description:
             params['description'] = description
         return self.post(endpoint, params=params, **kwargs)
@@ -1718,13 +1718,13 @@ class FitbitClient:
 
         return self.get(endpoint, **kwargs)
 
-    def create_friends_invitations(self, invitedUserEmail=None, invitedUserId=None, **kwargs):
+    def create_friends_invitations(self, invited_user_email=None, invited_user_id=None, **kwargs):
         '''Invite Friends
 
         Creates an invitation to become friends with the authorized user.  Either invitedUserEmail or invitedUserId needs to be provided.
 
-        :param invitedUserEmail: Email of the user to invite. 
-        :param invitedUserId: Encoded ID of the user to invite. 
+        :param invited_user_email: Email of the user to invite. 
+        :param invited_user_id: Encoded ID of the user to invite. 
         
         '''
         required_scope = set(['activity', 'heartrate', 'location', 'nutrition', 'profile', 'settings', 'sleep', 'social', 'weight'])
@@ -1734,10 +1734,10 @@ class FitbitClient:
 
         endpoint = '/1.1/user/-/friends/invitations'
         params = {}
-        if invitedUserEmail:
-            params['invitedUserEmail'] = invitedUserEmail
-        if invitedUserId:
-            params['invitedUserId'] = invitedUserId
+        if invited_user_email:
+            params['invitedUserEmail'] = invited_user_email
+        if invited_user_id:
+            params['invitedUserId'] = invited_user_id
         return self.post(endpoint, params=params, **kwargs)
 
     def respond_friends_invitation(self, from_user_id, accept, **kwargs):
@@ -1786,7 +1786,7 @@ class FitbitClient:
 
         Returns the time series data in the specified range for a given resource in the format requested using units in the unit systems that corresponds to the Accept-Language header provided.
 
-        :param base_date: The range start date in  the format yyyy-MM-dd or today. 
+        :param base_date: A datetime object. 
         :param end_date: A datetime object. 
         
         '''
@@ -1969,7 +1969,7 @@ class FitbitClient:
 
         return self.get(endpoint, **kwargs)
 
-    def get_sleep_list(self, sort, offset, limit, beforeDate=None, afterDate=None, **kwargs):
+    def get_sleep_list(self, sort, offset, limit, before_date=None, after_date=None, **kwargs):
         '''Get Sleep Logs List
 
         The Get Sleep Logs List endpoint returns a list of a user's sleep logs (including naps) before or after a given day with offset, limit, and sort order.
@@ -1977,17 +1977,17 @@ class FitbitClient:
         :param sort: The sort order of entries by date asc (ascending) or desc (descending). 
         :param offset: The offset number of entries. 
         :param limit: The maximum number of entries returned (maximum;100). 
-        :param beforeDate: A datetime object. 
-        :param afterDate: A datetime object. 
+        :param before_date: A datetime object. 
+        :param after_date: A datetime object. 
         
         '''
-        if beforeDate and not isinstance(beforeDate, datetime):
-            raise ValueError('Argument \'beforeDate\' must be a datetime object.')
-        beforeDate = beforeDate.strftime('%Y-%m-%d') if beforeDate else ''
+        if before_date and not isinstance(before_date, datetime):
+            raise ValueError('Argument \'before_date\' must be a datetime object.')
+        before_date = before_date.strftime('%Y-%m-%d') if before_date else ''
     
-        if afterDate and not isinstance(afterDate, datetime):
-            raise ValueError('Argument \'afterDate\' must be a datetime object.')
-        afterDate = afterDate.strftime('%Y-%m-%d') if afterDate else ''
+        if after_date and not isinstance(after_date, datetime):
+            raise ValueError('Argument \'after_date\' must be a datetime object.')
+        after_date = after_date.strftime('%Y-%m-%d') if after_date else ''
     
         required_scope = set(['activity', 'heartrate', 'location', 'nutrition', 'profile', 'settings', 'sleep', 'social', 'weight'])
         if not all(scope in self.session.scope for scope in required_scope):
@@ -1996,10 +1996,10 @@ class FitbitClient:
 
         endpoint = '/1.2/user/-/sleep/list.json'
         params = {}
-        if beforeDate:
-            params['beforeDate'] = beforeDate
-        if afterDate:
-            params['afterDate'] = afterDate
+        if before_date:
+            params['beforeDate'] = before_date
+        if after_date:
+            params['afterDate'] = after_date
         params['sort'] = sort
         params['offset'] = offset
         params['limit'] = limit
@@ -2021,12 +2021,12 @@ class FitbitClient:
 
         return self.get(endpoint, **kwargs)
 
-    def update_sleep_goal(self, minDuration, **kwargs):
+    def update_sleep_goal(self, min_duration, **kwargs):
         '''Update Sleep Goal
 
         Create or update the user's sleep goal and get a response in the JSON format.
 
-        :param minDuration: Duration of sleep goal. 
+        :param min_duration: Duration of sleep goal. 
         
         '''
         required_scope = set(['activity', 'heartrate', 'location', 'nutrition', 'profile', 'settings', 'sleep', 'social', 'weight'])
@@ -2036,15 +2036,15 @@ class FitbitClient:
 
         endpoint = '/1.2/user/-/sleep/goal.json'
         params = {}
-        params['minDuration'] = minDuration
+        params['minDuration'] = min_duration
         return self.post(endpoint, params=params, **kwargs)
 
-    def add_sleep(self, startTime, duration, date, **kwargs):
+    def add_sleep(self, start_time, duration, date, **kwargs):
         '''Log Sleep
 
         Creates a log entry for a sleep event and returns a response in the format requested.
 
-        :param startTime: Start time includes hours and minutes in the format HH:mm. 
+        :param start_time: Start time includes hours and minutes in the format HH:mm. 
         :param duration: Duration in milliseconds. 
         :param date: A datetime object. 
         
@@ -2060,7 +2060,7 @@ class FitbitClient:
 
         endpoint = '/1.2/user/-/sleep.json'
         params = {}
-        params['startTime'] = startTime
+        params['startTime'] = start_time
         params['duration'] = duration
         params['date'] = date
         return self.post(endpoint, params=params, **kwargs)
@@ -2150,7 +2150,7 @@ class FitbitClient:
 
         return self.get(endpoint, **kwargs)
 
-    def update_profile(self, gender=None, birthday=None, height=None, aboutMe=None, fullname=None, country=None, state=None, city=None, strideLengthWalking=None, strideLengthRunning=None, weightUnit=None, heightUnit=None, waterUnit=None, glucoseUnit=None, timezone=None, foodsLocale=None, locale=None, localeLang=None, localeCountry=None, startDayOfWeek=None, **kwargs):
+    def update_profile(self, gender=None, birthday=None, height=None, about_me=None, fullname=None, country=None, state=None, city=None, stride_length_walking=None, stride_length_running=None, weight_unit=None, height_unit=None, water_unit=None, glucose_unit=None, timezone=None, foods_locale=None, locale=None, locale_lang=None, locale_country=None, start_day_of_week=None, **kwargs):
         '''Update Profile
 
         Updates a user's profile using a form.
@@ -2158,23 +2158,23 @@ class FitbitClient:
         :param gender: The sex of the user; (MALE/FEMALE/NA). 
         :param birthday: A datetime object. 
         :param height: The height in the format X.XX in the unit system that corresponds to the Accept-Language header provided. 
-        :param aboutMe: This is a short description of user. 
+        :param about_me: This is a short description of user. 
         :param fullname: The fullname of the user. 
         :param country: The country of the user's residence. This is a two-character code. 
         :param state: The US state of the user's residence. This is a two-character code if the country was or is set to US. 
         :param city: The US city of the user's residence. 
-        :param strideLengthWalking: Walking stride length in the format X.XX, where it is in the unit system that corresponds to the Accept-Language header provided. 
-        :param strideLengthRunning: Running stride length in the format X.XX, where it is in the unit system that corresponds to the Accept-Language header provided. 
-        :param weightUnit: Default weight unit on website (which doesn't affect API); one of (en_US, en_GB, 'any' for METRIC). 
-        :param heightUnit: Default height/distance unit on website (which doesn't affect API); one of (en_US, en_GB, 'any' for METRIC). 
-        :param waterUnit: Default water unit on website (which doesn't affect API); one of (en_US, en_GB, 'any' for METRIC). 
-        :param glucoseUnit: Default glucose unit on website (which doesn't affect API); one of (en_US, en_GB, 'any' for METRIC). 
+        :param stride_length_walking: Walking stride length in the format X.XX, where it is in the unit system that corresponds to the Accept-Language header provided. 
+        :param stride_length_running: Running stride length in the format X.XX, where it is in the unit system that corresponds to the Accept-Language header provided. 
+        :param weight_unit: Default weight unit on website (which doesn't affect API); one of (en_US, en_GB, 'any' for METRIC). 
+        :param height_unit: Default height/distance unit on website (which doesn't affect API); one of (en_US, en_GB, 'any' for METRIC). 
+        :param water_unit: Default water unit on website (which doesn't affect API); one of (en_US, en_GB, 'any' for METRIC). 
+        :param glucose_unit: Default glucose unit on website (which doesn't affect API); one of (en_US, en_GB, 'any' for METRIC). 
         :param timezone: The timezone in the format 'America/Los_Angeles'. 
-        :param foodsLocale: The food database locale in the format of xx.XX. 
+        :param foods_locale: The food database locale in the format of xx.XX. 
         :param locale: The locale of the website (country/language); one of the locales, currently – (en_US, fr_FR, de_DE, es_ES, en_GB, en_AU, en_NZ, ja_JP). 
-        :param localeLang: The Language in the format 'xx'. You should specify either locale or both - localeLang and localeCountry (locale is higher priority). 
-        :param localeCountry: The Country in the format 'xx'. You should specify either locale or both - localeLang and localeCountry (locale is higher priority). 
-        :param startDayOfWeek: The Start day of the week, meaning what day the week should start on. Either Sunday or Monday. 
+        :param locale_lang: The Language in the format 'xx'. You should specify either locale or both - localeLang and localeCountry (locale is higher priority). 
+        :param locale_country: The Country in the format 'xx'. You should specify either locale or both - localeLang and localeCountry (locale is higher priority). 
+        :param start_day_of_week: The Start day of the week, meaning what day the week should start on. Either Sunday or Monday. 
         
         '''
         if birthday and not isinstance(birthday, datetime):

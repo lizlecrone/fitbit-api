@@ -6,5 +6,10 @@
 fitbit_api Documentation
 ======================================
 
+.. toctree::
+   :maxdepth: 2
+   :caption: Contents:
+
+
 .. automodule:: fitbit_api
 	:members:
