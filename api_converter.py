@@ -11,6 +11,12 @@ def kabob_to_snake_case(str):
 def is_date(parameter):
 	return (parameter.get('format') == 'date') or ('yyyy-MM-dd' in parameter.get('description'))
 
+def is_int(parameter):
+	return parameter.get('type') == 'integer'
+
+def is_bool(parameter):
+	return parameter.get('type') == 'boolean'
+
 #attempt to read fitbit's json
 fitbit_api_json = ''
 with open('fitbit_api.json', 'r') as file:
@@ -27,7 +33,17 @@ for endpoint in endpoints:
 			parameter['python_name'] = camel_to_snake_case(kabob_to_snake_case(parameter['name']))
 			if is_date(parameter):
 				parameter['description'] = 'A datetime object.'
+				parameter['python_type'] = 'datetime'
+			elif is_int(parameter):
+				parameter['python_type'] = 'int'
+			elif is_bool(parameter):
+				parameter['python_type'] = 'bool'
+			else:
+				parameter['python_type'] = 'string'
+		
 		date_parameters = [parameter for parameter in parameters if is_date(parameter)]
+		int_parameters = [parameter for parameter in parameters if is_int(parameter)]
+		bool_parameters = [parameter for parameter in parameters if is_bool(parameter)]
 
 		#load the jinja file with variables
 		apis.append({

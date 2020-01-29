@@ -109,12 +109,21 @@ class FitbitClient:
         {{ api.description }}
 
         {% for parameter in api.parameters %}:param {{ parameter.python_name }}: {{ parameter.description }} {% if parameter.enum %}Possible values: {{ parameter.enum }}{% endif %}
+        :type {{ parameter.python_name }}: {{ parameter.python_type }}{% if not parameter.required %}, optional{% endif %}
         {% endfor %}
         '''
     {%- for date in api.date_parameters %}
         if {% if not date.required %}{{ date.python_name }} and {% endif %}not isinstance({{ date.python_name }}, datetime):
             raise ValueError('Argument \'{{ date.python_name }}\' must be a datetime object.')
         {{ date.python_name }} = {{ date.python_name }}.strftime('%Y-%m-%d') if {{ date.python_name }} else ''
+    {% endfor %}
+    {%- for integer in api.int_parameters %}
+        if {% if not integer.required %}{{ date.python_name }} and {% endif %}not isinstance({{ integer.python_name }}, int):
+            raise ValueError('Argument \'{{ int.python_name }}\' must be an int.')
+    {% endfor %}
+    {%- for boolean in api.bool_parameters %}
+        if {% if not boolean.required %}{{ boolean.python_name }} and {% endif %}not isinstance({{ boolean.python_name }}, bool):
+            raise ValueError('Argument \'{{ boolean.python_name }}\' must be a bool.')
     {% endfor %}
     {%- for parameter in api.parameters %}
         {%- if parameter.enum %}

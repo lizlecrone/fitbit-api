@@ -109,6 +109,7 @@ class FitbitClient:
         Retrieves a summary and list of a user's activities and activity log entries for a given day.
 
         :param date: A datetime object. 
+        :type date: datetime
         
         '''
         if not isinstance(date, datetime):
@@ -130,8 +131,11 @@ class FitbitClient:
         Returns activities time series data in the specified range for a given resource.
 
         :param resource_path: The resource-path; see options in the Resource Path Options section in the full documentation. Possible values: ['calories', 'caloriesBMR', 'steps', 'distance', 'floors', 'elevation', 'minutesSedentary', 'minutesLightlyActive', 'minutesFairlyActive', 'minutesVeryActive', 'activityCalories']
+        :type resource_path: string
         :param base_date: A datetime object. 
+        :type base_date: datetime
         :param end_date: A datetime object. 
+        :type end_date: datetime
         
         '''
         if not isinstance(base_date, datetime):
@@ -161,8 +165,11 @@ class FitbitClient:
         Returns time series data in the specified range for a given resource.
 
         :param resource_path: The resource-path; see options in the Resource Path Options section in the full documentation. Possible values: ['calories', 'caloriesBMR', 'steps', 'distance', 'floors', 'elevation', 'minutesSedentary', 'minutesLightlyActive', 'minutesFairlyActive', 'minutesVeryActive', 'activityCalories']
+        :type resource_path: string
         :param base_date: A datetime object. 
+        :type base_date: datetime
         :param end_date: A datetime object. 
+        :type end_date: datetime
         
         '''
         if not isinstance(base_date, datetime):
@@ -192,8 +199,11 @@ class FitbitClient:
         Returns time series data in the specified range for a given resource in the format requested using units in the unit system that corresponds to the Accept-Language header provided.
 
         :param resource_path: The resource-path; see options in the Resource Path Options section in the full documentation. Possible values: ['calories', 'caloriesBMR', 'steps', 'distance', 'floors', 'elevation', 'minutesSedentary', 'minutesLightlyActive', 'minutesFairlyActive', 'minutesVeryActive', 'activityCalories']
+        :type resource_path: string
         :param date: A datetime object. 
+        :type date: datetime
         :param period: The range for which data will be returned. Options are 1d, 7d, 30d, 1w, 1m, 3m, 6m, 1y, or max. 
+        :type period: string
         
         '''
         if not isinstance(date, datetime):
@@ -219,8 +229,11 @@ class FitbitClient:
         Returns time series data in the specified range for a given resource in the format requested using units in the unit system that corresponds to the Accept-Language header provided.
 
         :param resource_path: The resource-path; see options in the Resource Path Options section in the full documentation. Possible values: ['calories', 'caloriesBMR', 'steps', 'distance', 'floors', 'elevation', 'minutesSedentary', 'minutesLightlyActive', 'minutesFairlyActive', 'minutesVeryActive', 'activityCalories']
+        :type resource_path: string
         :param date: A datetime object. 
+        :type date: datetime
         :param period: The range for which data will be returned. Options are 1d, 7d, 30d, 1w, 1m, 3m, 6m, 1y, or max. 
+        :type period: string
         
         '''
         if not isinstance(date, datetime):
@@ -246,9 +259,13 @@ class FitbitClient:
         Returns the Activity Intraday Time Series for a given resource in the format requested.
 
         :param resource_path: The resource-path; see options in the Resource Path Options section in the full documentation. Possible values: ['calories', 'steps', 'distance', 'floors', 'elevation']
+        :type resource_path: string
         :param base_date: A datetime object. 
+        :type base_date: datetime
         :param end_date: A datetime object. 
+        :type end_date: datetime
         :param detail_level: Number of data points to include. Either 1min or 15min. Optional. 
+        :type detail_level: string
         
         '''
         if not isinstance(base_date, datetime):
@@ -278,8 +295,11 @@ class FitbitClient:
         Returns the Intraday Time Series for a given resource in the format requested.
 
         :param resource_path: The resource-path; see options in the Resource Path Options section in the full documentation. Possible values: ['calories', 'steps', 'distance', 'floors', 'elevation']
+        :type resource_path: string
         :param date: A datetime object. 
+        :type date: datetime
         :param detail_level: Number of data points to include. Either 1min or 15min. Optional. 
+        :type detail_level: string
         
         '''
         if not isinstance(date, datetime):
@@ -305,11 +325,17 @@ class FitbitClient:
         Returns the Intraday Time Series for a given resource in the format requested.
 
         :param resource_path: The resource-path; see options in the Resource Path Options section in the full documentation. Possible values: ['calories', 'steps', 'distance', 'floors', 'elevation']
+        :type resource_path: string
         :param date: A datetime object. 
+        :type date: datetime
         :param end_date: A datetime object. 
+        :type end_date: datetime
         :param detail_level: Number of data points to include. Either 1min or 15min. 
+        :type detail_level: string
         :param start_time: The start of the period in the format HH:mm. 
+        :type start_time: string
         :param end_time: The end of the period in the format HH:mm. 
+        :type end_time: string
         
         '''
         if not isinstance(date, datetime):
@@ -339,10 +365,15 @@ class FitbitClient:
         Returns the Intraday Time Series for a given resource in the format requested.
 
         :param resource_path: The resource-path; see options in the Resource Path Options section in the full documentation. Possible values: ['calories', 'steps', 'distance', 'floors', 'elevation']
+        :type resource_path: string
         :param date: A datetime object. 
+        :type date: datetime
         :param detail_level: Number of data points to include. Either 1min or 15min. 
+        :type detail_level: string
         :param start_time: The start of the period in the format HH:mm. 
+        :type start_time: string
         :param end_time: The end of the period in the format HH:mm. 
+        :type end_time: string
         
         '''
         if not isinstance(date, datetime):
@@ -368,13 +399,21 @@ class FitbitClient:
         The Log Activity endpoint creates log entry for an activity or user's private custom activity using units in the unit system which corresponds to the Accept-Language header provided (or using optional custom distanceUnit) and get a response in the format requested.
 
         :param activity_id: The ID of the activity, directory activity or intensity level activity. 
+        :type activity_id: int
         :param manual_calories: Calories burned that are manaully specified. Required with activityName must be provided. 
+        :type manual_calories: int
         :param start_time: Activity start time. Hours and minutes in the format HH:mm:ss. 
+        :type start_time: string
         :param duration_millis: Duration in milliseconds. 
+        :type duration_millis: int
         :param date: A datetime object. 
+        :type date: datetime
         :param distance: Distance is required for logging directory activity in the format X.XX and in the selected distanceUnit. 
+        :type distance: int
         :param activity_name: Custom activity name. Either activityId or activityName must be provided. 
+        :type activity_name: string, optional
         :param distance_unit: Distance measurement unit. Steps units are available only for Walking (activityId=90013) and Running (activityId=90009) directory activities and their intensity levels. 
+        :type distance_unit: int, optional
         
         '''
         if not isinstance(date, datetime):
@@ -422,6 +461,7 @@ class FitbitClient:
         Deletes a user's activity log entry with the given ID.
 
         :param activity_log_id: The id of the activity log entry. 
+        :type activity_log_id: int
         
         '''
         required_scope = set(['activity', 'heartrate', 'location', 'nutrition', 'profile', 'settings', 'sleep', 'social', 'weight'])
@@ -439,10 +479,15 @@ class FitbitClient:
         Retreives a list of user's activity log entries before or after a given day with offset and limit using units in the unit system which corresponds to the Accept-Language header provided.
 
         :param sort: The sort order of entries by date asc (ascending) or desc (descending). 
+        :type sort: string
         :param offset: The offset number of entries. 
+        :type offset: int
         :param limit: The maximum number of entries returned (maximum;100). 
+        :type limit: int
         :param before_date: A datetime object. 
+        :type before_date: datetime, optional
         :param after_date: A datetime object. 
+        :type after_date: datetime, optional
         
         '''
         if before_date and not isinstance(before_date, datetime):
@@ -475,7 +520,9 @@ class FitbitClient:
         Retreives the details of a user's location and heart rate data during a logged exercise activity.
 
         :param log_id: The activity's log ID. 
+        :type log_id: string
         :param include_partial_t_c_x: Include TCX points regardless of GPS data being present 
+        :type include_partial_t_c_x: bool, optional
         
         '''
         required_scope = set(['activity', 'heartrate', 'location', 'nutrition', 'profile', 'settings', 'sleep', 'social', 'weight'])
@@ -511,6 +558,7 @@ class FitbitClient:
         Returns the detail of a specific activity in the Fitbit activities database in the format requested. If activity has levels, it also returns a list of activity level details.
 
         :param activity_id: The activity ID. 
+        :type activity_id: string
         
         '''
         required_scope = set(['activity', 'heartrate', 'location', 'nutrition', 'profile', 'settings', 'sleep', 'social', 'weight'])
@@ -576,6 +624,7 @@ class FitbitClient:
         Removes the activity with the given ID from a user's list of favorite activities.
 
         :param activity_id: The ID of the activity to be removed. 
+        :type activity_id: string
         
         '''
         required_scope = set(['activity', 'heartrate', 'location', 'nutrition', 'profile', 'settings', 'sleep', 'social', 'weight'])
@@ -593,6 +642,7 @@ class FitbitClient:
         Adds the activity with the given ID to user's list of favorite activities.
 
         :param activity_id: The encoded ID of the activity. 
+        :type activity_id: string
         
         '''
         required_scope = set(['activity', 'heartrate', 'location', 'nutrition', 'profile', 'settings', 'sleep', 'social', 'weight'])
@@ -610,6 +660,7 @@ class FitbitClient:
         Retreives a user's current daily or weekly activity goals using measurement units as defined in the unit system, which corresponds to the Accept-Language header provided.
 
         :param period: daily or weekly. 
+        :type period: string
         
         '''
         required_scope = set(['activity', 'heartrate', 'location', 'nutrition', 'profile', 'settings', 'sleep', 'social', 'weight'])
@@ -627,8 +678,11 @@ class FitbitClient:
         Updates a user's daily or weekly activity goals and returns a response using units in the unit system which corresponds to the Accept-Language header provided.
 
         :param period: daily or weekly. 
+        :type period: string
         :param type: goal type 
+        :type type: string
         :param value: goal value 
+        :type value: string
         
         '''
         required_scope = set(['activity', 'heartrate', 'location', 'nutrition', 'profile', 'settings', 'sleep', 'social', 'weight'])
@@ -648,6 +702,7 @@ class FitbitClient:
         Retreives a list of all user's body fat log entries for a given day in the format requested.
 
         :param date: A datetime object. 
+        :type date: datetime
         
         '''
         if not isinstance(date, datetime):
@@ -669,7 +724,9 @@ class FitbitClient:
         Retreives a list of all user's body fat log entries for a given day in the format requested.
 
         :param date: A datetime object. 
+        :type date: datetime
         :param period: The range for which data will be returned. Options are 1d, 7d, 30d, 1w, 1m, 3m, 6m, 1y, or max. 
+        :type period: string
         
         '''
         if not isinstance(date, datetime):
@@ -691,7 +748,9 @@ class FitbitClient:
         Retreives a list of all user's body fat log entries for a given day in the format requested.
 
         :param base_date: A datetime object. 
+        :type base_date: datetime
         :param end_date: A datetime object. 
+        :type end_date: datetime
         
         '''
         if not isinstance(base_date, datetime):
@@ -717,8 +776,11 @@ class FitbitClient:
         Creates a log entry for body fat and returns a response in the format requested.
 
         :param fat: Body fat in the format of X.XX in the unit system that corresponds to the Accept-Language header provided. 
+        :type fat: int
         :param date: A datetime object. 
+        :type date: datetime
         :param time: Time of the measurement in hours and minutes in the format HH:mm:ss that is set to the last second of the day if not provided. 
+        :type time: string
         
         '''
         if not isinstance(date, datetime):
@@ -743,6 +805,7 @@ class FitbitClient:
         Deletes a user's body fat log entry with the given ID.
 
         :param body_fat_log_id: The ID of the body fat log entry. 
+        :type body_fat_log_id: int
         
         '''
         required_scope = set(['activity', 'heartrate', 'location', 'nutrition', 'profile', 'settings', 'sleep', 'social', 'weight'])
@@ -760,8 +823,11 @@ class FitbitClient:
         Returns time series data in the specified range for a given resource in the format requested using units in the unit system that corresponds to the Accept-Language header provided.
 
         :param resource_path: The resource path, which incudes the bmi, fat, or weight options. Possible values: ['bmi', 'fat', 'weight']
+        :type resource_path: string
         :param date: A datetime object. 
+        :type date: datetime
         :param period: The range for which data will be returned. Options are 1d, 7d, 30d, 1w, 1m, 3m, 6m, 1y, or max. 
+        :type period: string
         
         '''
         if not isinstance(date, datetime):
@@ -787,8 +853,11 @@ class FitbitClient:
         Returns time series data in the specified range for a given resource in the format requested using units in the unit system that corresponds to the Accept-Language header provided.
 
         :param resource_path: The resource path, which incudes the bmi, fat, or weight options. Possible values: ['bmi', 'fat', 'weight']
+        :type resource_path: string
         :param base_date: A datetime object. 
+        :type base_date: datetime
         :param end_date: A datetime object. 
+        :type end_date: datetime
         
         '''
         if not isinstance(base_date, datetime):
@@ -818,6 +887,7 @@ class FitbitClient:
         Retreives a user's current body fat percentage or weight goal using units in the unit systems that corresponds to the Accept-Language header providedin the format requested.
 
         :param goal_type: weight or fat. 
+        :type goal_type: string
         
         '''
         required_scope = set(['activity', 'heartrate', 'location', 'nutrition', 'profile', 'settings', 'sleep', 'social', 'weight'])
@@ -835,6 +905,7 @@ class FitbitClient:
         Updates user's fat percentage goal.
 
         :param fat: Target body fat percentage; in the format X.XX. 
+        :type fat: string
         
         '''
         required_scope = set(['activity', 'heartrate', 'location', 'nutrition', 'profile', 'settings', 'sleep', 'social', 'weight'])
@@ -853,8 +924,11 @@ class FitbitClient:
         Updates user's fat percentage goal.
 
         :param start_date: A datetime object. 
+        :type start_date: datetime
         :param start_weight: Weight goal start weight; in the format X.XX, in the unit systems that corresponds to the Accept-Language header provided. 
+        :type start_weight: string
         :param weight: Weight goal target weight; in the format X.XX, in the unit systems that corresponds to the Accept-Language header provided; required if user doesn't have an existing weight goal. 
+        :type weight: string, optional
         
         '''
         required_scope = set(['profile', 'heartrate', 'location'])
@@ -876,6 +950,7 @@ class FitbitClient:
         Retreives a list of all user's body weight log entries for a given day using units in the unit systems which corresponds to the Accept-Language header provided.
 
         :param date: A datetime object. 
+        :type date: datetime
         
         '''
         if not isinstance(date, datetime):
@@ -897,7 +972,9 @@ class FitbitClient:
         Retreives a list of all user's body weight log entries for a given day in the format requested.
 
         :param date: A datetime object. 
+        :type date: datetime
         :param period: The range for which data will be returned. Options are 1d, 7d, 30d, 1w, 1m, 3m, 6m, 1y, or max. 
+        :type period: string
         
         '''
         if not isinstance(date, datetime):
@@ -919,7 +996,9 @@ class FitbitClient:
         Retreives a list of all user's body fat log entries for a given day in the format requested.
 
         :param base_date: A datetime object. 
+        :type base_date: datetime
         :param end_date: A datetime object. 
+        :type end_date: datetime
         
         '''
         if not isinstance(base_date, datetime):
@@ -945,8 +1024,11 @@ class FitbitClient:
         Creates log entry for a body weight using units in the unit systems that corresponds to the Accept-Language header provided and gets a response in the format requested.
 
         :param weight: Weight in the format of X.XX. 
+        :type weight: int
         :param date: A datetime object. 
+        :type date: datetime
         :param time: Time of the measurement; hours and minutes in the format of HH:mm:ss, which is set to the last second of the day if not provided. 
+        :type time: string, optional
         
         '''
         if not isinstance(date, datetime):
@@ -972,6 +1054,7 @@ class FitbitClient:
         Deletes a user's body weight log entrywith the given ID.
 
         :param body_weight_log_id: The ID of the body weight log entry. 
+        :type body_weight_log_id: int
         
         '''
         required_scope = set(['activity', 'heartrate', 'location', 'nutrition', 'profile', 'settings', 'sleep', 'social', 'weight'])
@@ -1005,6 +1088,7 @@ class FitbitClient:
         Returns alarms for a device
 
         :param tracker_id: The ID of the tracker for which data is returned. The tracker-id value is found via the Get Devices endpoint. 
+        :type tracker_id: int
         
         '''
         required_scope = set(['activity', 'heartrate', 'location', 'nutrition', 'profile', 'settings', 'sleep', 'social', 'weight'])
@@ -1022,10 +1106,15 @@ class FitbitClient:
         Adds the alarm settings to a given ID for a given device.
 
         :param tracker_id: The ID of the tracker for which data is returned. The tracker-id value is found via the Get Devices endpoint. 
+        :type tracker_id: int
         :param time: Time of day that the alarm vibrates with a UTC timezone offset, e.g. 07:15-08:00. 
+        :type time: string
         :param enabled: true or false. If false, alarm does not vibrate until enabled is set to true. 
+        :type enabled: bool
         :param recurring: true or false. If false, the alarm is a single event. 
+        :type recurring: string
         :param week_days: Comma separated list of days of the week on which the alarm vibrates, e.g. MONDAY, TUESDAY. 
+        :type week_days: string
         
         '''
         required_scope = set(['activity', 'heartrate', 'location', 'nutrition', 'profile', 'settings', 'sleep', 'social', 'weight'])
@@ -1047,13 +1136,21 @@ class FitbitClient:
         Updates the alarm entry with a given ID for a given device. It also gets a response in the format requested.
 
         :param tracker_id: The ID of the tracker for which data is returned. The tracker-id value is found via the Get Devices endpoint. 
+        :type tracker_id: int
         :param alarm_id: The ID of the alarm to be updated. The alarm-id value is found in the response of the Get Activity endpoint. 
+        :type alarm_id: int
         :param time: Time of day that the alarm vibrates with a UTC timezone offset, e.g. 07:15-08:00. 
+        :type time: string
         :param enabled: true or false. If false, the alarm does not vibrate until enabled is set to true. 
+        :type enabled: bool
         :param recurring: true or false. If false, the alarm is a single event. 
+        :type recurring: string
         :param week_days: Comma seperated list of days of the week on which the alarm vibrates, e.g. MONDAY, TUESDAY. 
+        :type week_days: string
         :param snooze_length: Minutes between alarms. 
+        :type snooze_length: int
         :param snooze_count: Maximum snooze count. 
+        :type snooze_count: int
         
         '''
         required_scope = set(['activity', 'heartrate', 'location', 'nutrition', 'profile', 'settings', 'sleep', 'social', 'weight'])
@@ -1077,7 +1174,9 @@ class FitbitClient:
         Deletes the user's device alarm entry with the given ID for a given device.
 
         :param tracker_id: The ID of the tracker whose alarms is managed. The tracker-id value is found via the Get Devices endpoint. 
+        :type tracker_id: int
         :param alarm_id: The ID of the alarm to be updated. The alarm-id value is found via the Get Alarms endpoint. 
+        :type alarm_id: int
         
         '''
         required_scope = set(['activity', 'heartrate', 'location', 'nutrition', 'profile', 'settings', 'sleep', 'social', 'weight'])
@@ -1127,8 +1226,11 @@ class FitbitClient:
         Updates a user's daily calories consumption goal or food plan and returns a response in the format requested.
 
         :param calories: Manual calorie consumption goal in either calories or intensity must be provided. 
+        :type calories: int
         :param intensity: Food plan intensity (MAINTENANCE, EASIER, MEDIUM, KINDAHARD, or HARDER). Either calories or intensity must be provided. 
+        :type intensity: string, optional
         :param personalized: Food plan type; true or false. 
+        :type personalized: string, optional
         
         '''
         required_scope = set(['activity', 'heartrate', 'location', 'nutrition', 'profile', 'settings', 'sleep', 'social', 'weight'])
@@ -1151,6 +1253,7 @@ class FitbitClient:
         Retreives a summary and list of a user's food log entries for a given day in the format requested.
 
         :param date: A datetime object. 
+        :type date: datetime
         
         '''
         if not isinstance(date, datetime):
@@ -1172,6 +1275,7 @@ class FitbitClient:
         Retreives a summary and list of a user's water log entries for a given day in the requested using units in the unit system that corresponds to the Accept-Language header provided.
 
         :param date: A datetime object. 
+        :type date: datetime
         
         '''
         if not isinstance(date, datetime):
@@ -1209,6 +1313,7 @@ class FitbitClient:
         Updates a user's daily calories consumption goal or food plan and returns a response in the format requested.
 
         :param target: The target water goal in the format X.X is set in unit based on locale. 
+        :type target: int
         
         '''
         required_scope = set(['activity', 'heartrate', 'location', 'nutrition', 'profile', 'settings', 'sleep', 'social', 'weight'])
@@ -1227,8 +1332,11 @@ class FitbitClient:
         Updates a user's daily activity goals and returns a response using units in the unit system which corresponds to the Accept-Language header provided.
 
         :param resource_path: The resouce path. See options in the Resouce Path Options section in the full documentation. Possible values: ['caloriesIn', 'water']
+        :type resource_path: string
         :param base_date: A datetime object. 
+        :type base_date: datetime
         :param end_date: A datetime object. 
+        :type end_date: datetime
         
         '''
         if not isinstance(base_date, datetime):
@@ -1258,8 +1366,11 @@ class FitbitClient:
         Updates a user's daily activity goals and returns a response using units in the unit system which corresponds to the Accept-Language header provided.
 
         :param resource_path: The resouce path. See options in the Resouce Path Options section in the full documentation. Possible values: ['caloriesIn', 'water']
+        :type resource_path: string
         :param date: A datetime object. 
+        :type date: datetime
         :param period: The range for which data will be returned. Options are 1d, 7d, 30d, 1w, 3m, 6m, 1y, or max. 
+        :type period: string
         
         '''
         if not isinstance(date, datetime):
@@ -1285,14 +1396,23 @@ class FitbitClient:
         Creates food log entries for users with or without foodId value.
 
         :param food_id: The ID of the food to be logged. Either foodId or foodName must be provided. 
+        :type food_id: string
         :param meal_type_id: Meal types. 1=Breakfast; 2=Morning Snack; 3=Lunch; 4=Afternoon Snack; 5=Dinner; 7=Anytime. 
+        :type meal_type_id: string
         :param unit_id: The ID of units used. Typically retrieved via a previous call to Get Food Logs, Search Foods, or Get Food Units. 
+        :type unit_id: string
         :param amount: The amount consumed in the format X.XX in the specified unitId. 
+        :type amount: string
         :param date: A datetime object. 
+        :type date: datetime
         :param food_name: Food entry name. Either foodId or foodName must be provided. 
+        :type food_name: string, optional
         :param favorite: The `true` value will add the food to the user's favorites after creating the log entry; while the `false` value will not. Valid only with foodId value. 
+        :type favorite: bool, optional
         :param brand_name: Brand name of food. Valid only with foodName parameters. 
+        :type brand_name: string, optional
         :param calories: Calories for this serving size. This is allowed with foodName parameter (default to zero); otherwise it is ignored. 
+        :type calories: int, optional
         
         '''
         if not isinstance(date, datetime):
@@ -1327,6 +1447,7 @@ class FitbitClient:
         Deletes a user's food log entry with the given ID.
 
         :param food_log_id: The ID of the food log entry to be deleted. 
+        :type food_log_id: string
         
         '''
         required_scope = set(['activity', 'heartrate', 'location', 'nutrition', 'profile', 'settings', 'sleep', 'social', 'weight'])
@@ -1344,8 +1465,11 @@ class FitbitClient:
         Creates a log entry for water using units in the unit systems that corresponds to the Accept-Language header provided.
 
         :param date: A datetime object. 
+        :type date: datetime
         :param amount: The amount consumption in the format X.XX and in the specified waterUnit or in the unit system that corresponds to the Accept-Language header provided. 
+        :type amount: int
         :param unit: Water measurement unit; `ml`, `fl oz`, or `cup`. 
+        :type unit: string, optional
         
         '''
         if not isinstance(date, datetime):
@@ -1371,6 +1495,7 @@ class FitbitClient:
         Deletes a user's water log entry with the given ID.
 
         :param water_log_id: The ID of the waterUnit log entry to be deleted. 
+        :type water_log_id: string
         
         '''
         required_scope = set(['activity', 'heartrate', 'location', 'nutrition', 'profile', 'settings', 'sleep', 'social', 'weight'])
@@ -1388,8 +1513,11 @@ class FitbitClient:
         Updates a user's water log entry with the given ID.
 
         :param water_log_id: The ID of the waterUnit log entry to be deleted. 
+        :type water_log_id: string
         :param amount: Amount consumed; in the format X.X and in the specified waterUnit or in the unit system that corresponds to the Accept-Language header provided. 
+        :type amount: string
         :param unit: Water measurement unit. 'ml', 'fl oz', or 'cup'. 
+        :type unit: string, optional
         
         '''
         required_scope = set(['activity', 'heartrate', 'location', 'nutrition', 'profile', 'settings', 'sleep', 'social', 'weight'])
@@ -1442,6 +1570,7 @@ class FitbitClient:
         Updates a user's daily activity goals and returns a response using units in the unit system which corresponds to the Accept-Language header provided.
 
         :param food_id: The ID of the food to be added to user's favorites. 
+        :type food_id: string
         
         '''
         required_scope = set(['activity', 'heartrate', 'location', 'nutrition', 'profile', 'settings', 'sleep', 'social', 'weight'])
@@ -1459,6 +1588,7 @@ class FitbitClient:
         Deletes a food with the given ID to the user's list of favorite foods.
 
         :param food_id: The ID of the food to be deleted from user's favorites. 
+        :type food_id: string
         
         '''
         required_scope = set(['activity', 'heartrate', 'location', 'nutrition', 'profile', 'settings', 'sleep', 'social', 'weight'])
@@ -1492,10 +1622,15 @@ class FitbitClient:
         Creates a meal with the given food contained in the post body.
 
         :param name: Name of the meal. 
+        :type name: string
         :param description: Short description of the meal. 
+        :type description: string
         :param food_id: ID of the food to be included in the meal. 
+        :type food_id: string
         :param unit_id: ID of units used. Typically retrieved via a previous call to Get Food Logs, Search Foods, or Get Food Units. 
+        :type unit_id: string
         :param amount: Amount consumed; in the format X.XX, in the specified unitId. 
+        :type amount: string
         
         '''
         required_scope = set(['activity', 'heartrate', 'location', 'nutrition', 'profile', 'settings', 'sleep', 'social', 'weight'])
@@ -1518,11 +1653,17 @@ class FitbitClient:
         Replaces an existing meal with the contents of the request. The response contains the updated meal.
 
         :param meal_id: Id of the meal to edit. 
+        :type meal_id: string
         :param name: Name of the meal. 
+        :type name: string
         :param description: Short description of the meal. 
+        :type description: string
         :param food_id: ID of the food to be included in the meal. 
+        :type food_id: string
         :param unit_id: ID of units used. Typically retrieved via a previous call to Get Food Logs, Search Foods, or Get Food Units. 
+        :type unit_id: string
         :param amount: Amount consumed; in the format X.XX, in the specified unitId. 
+        :type amount: string
         
         '''
         required_scope = set(['activity', 'heartrate', 'location', 'nutrition', 'profile', 'settings', 'sleep', 'social', 'weight'])
@@ -1545,6 +1686,7 @@ class FitbitClient:
         Deletes a user's meal with the given meal id.
 
         :param meal_id: Id of the meal to delete. 
+        :type meal_id: string
         
         '''
         required_scope = set(['activity', 'heartrate', 'location', 'nutrition', 'profile', 'settings', 'sleep', 'social', 'weight'])
@@ -1578,11 +1720,17 @@ class FitbitClient:
         Creates a new private food for a user and returns a response in the format requested. The created food is found via the Search Foods call.
 
         :param name: The food name. 
+        :type name: string
         :param default_food_measurement_unit_id: The ID of the default measurement unit. Full list of units can be retrieved via the Get Food Units endpoint. 
+        :type default_food_measurement_unit_id: string
         :param default_serving_size: The size of the default serving. Nutrition values should be provided for this serving size. 
+        :type default_serving_size: string
         :param calories: The calories in the default serving size. 
+        :type calories: string
         :param form_type: Form type; LIQUID or DRY. 
+        :type form_type: string, optional
         :param description: The description of the food. 
+        :type description: string, optional
         
         '''
         required_scope = set(['activity', 'heartrate', 'location', 'nutrition', 'profile', 'settings', 'sleep', 'social', 'weight'])
@@ -1608,6 +1756,7 @@ class FitbitClient:
         Deletes custom food for a user and returns a response in the format requested.
 
         :param food_id: The ID of the food to be deleted. 
+        :type food_id: string
         
         '''
         required_scope = set(['activity', 'heartrate', 'location', 'nutrition', 'profile', 'settings', 'sleep', 'social', 'weight'])
@@ -1625,6 +1774,7 @@ class FitbitClient:
         Returns the details of a specific food in the Fitbit food databases or a private food that an authorized user has entered in the format requested.
 
         :param food_id: The ID of the food. 
+        :type food_id: string
         
         '''
         required_scope = set(['activity', 'heartrate', 'location', 'nutrition', 'profile', 'settings', 'sleep', 'social', 'weight'])
@@ -1658,6 +1808,7 @@ class FitbitClient:
         Returns a list of public foods from the Fitbit food database and private food the user created in the format requested.
 
         :param query: The URL-encoded search query. 
+        :type query: string
         
         '''
         required_scope = set(['activity', 'heartrate', 'location', 'nutrition', 'profile', 'settings', 'sleep', 'social', 'weight'])
@@ -1724,7 +1875,9 @@ class FitbitClient:
         Creates an invitation to become friends with the authorized user.  Either invitedUserEmail or invitedUserId needs to be provided.
 
         :param invited_user_email: Email of the user to invite. 
+        :type invited_user_email: string, optional
         :param invited_user_id: Encoded ID of the user to invite. 
+        :type invited_user_id: string, optional
         
         '''
         required_scope = set(['activity', 'heartrate', 'location', 'nutrition', 'profile', 'settings', 'sleep', 'social', 'weight'])
@@ -1746,7 +1899,9 @@ class FitbitClient:
         Accepts or rejects an invitation to become friends wit inviting user.
 
         :param from_user_id: The encoded ID of a user from which to accept or reject invitation. 
+        :type from_user_id: string
         :param accept: Accept or reject invitation; true or false. 
+        :type accept: string
         
         '''
         required_scope = set(['activity', 'heartrate', 'location', 'nutrition', 'profile', 'settings', 'sleep', 'social', 'weight'])
@@ -1765,7 +1920,9 @@ class FitbitClient:
         Returns the time series data in the specified range for a given resource in the format requested using units in the unit systems that corresponds to the Accept-Language header provided.
 
         :param date: A datetime object. 
+        :type date: datetime
         :param period: The range of which data will be returned. Options are 1d, 7d, 30d, 1w, and 1m. 
+        :type period: string
         
         '''
         if not isinstance(date, datetime):
@@ -1787,7 +1944,9 @@ class FitbitClient:
         Returns the time series data in the specified range for a given resource in the format requested using units in the unit systems that corresponds to the Accept-Language header provided.
 
         :param base_date: A datetime object. 
+        :type base_date: datetime
         :param end_date: A datetime object. 
+        :type end_date: datetime
         
         '''
         if not isinstance(end_date, datetime):
@@ -1809,8 +1968,11 @@ class FitbitClient:
         Returns the intraday time series for a given resource in the format requested. If your application has the appropriate access, your calls to a time series endpoint for a specific day (by using start and end dates on the same day or a period of 1d), the response will include extended intraday values with a one-minute detail level for that day. Unlike other time series calls that allow fetching data of other users, intraday data is available only for and to the authorized user.
 
         :param date: A datetime object. 
+        :type date: datetime
         :param end_date: A datetime object. 
+        :type end_date: datetime
         :param detail_level: The number of data points to include either 1sec or 1min. 
+        :type detail_level: string
         
         '''
         if not isinstance(date, datetime):
@@ -1836,10 +1998,15 @@ class FitbitClient:
         Returns the intraday time series for a given resource in the format requested. If your application has the appropriate access, your calls to a time series endpoint for a specific day (by using start and end dates on the same day or a period of 1d), the response will include extended intraday values with a one-minute detail level for that day. Unlike other time series calls that allow fetching data of other users, intraday data is available only for and to the authorized user.
 
         :param date: A datetime object. 
+        :type date: datetime
         :param end_date: A datetime object. 
+        :type end_date: datetime
         :param detail_level: The number of data points to include either 1sec or 1min. 
+        :type detail_level: string
         :param start_time: The start of the period in the format of HH:mm. 
+        :type start_time: string
         :param end_time: The end time of the period in the format of HH:mm. 
+        :type end_time: string
         
         '''
         if not isinstance(date, datetime):
@@ -1865,7 +2032,9 @@ class FitbitClient:
         Returns the intraday time series for a given resource in the format requested. If your application has the appropriate access, your calls to a time series endpoint for a specific day (by using start and end dates on the same day or a period of 1d), the response will include extended intraday values with a one-minute detail level for that day. Unlike other time series calls that allow fetching data of other users, intraday data is available only for and to the authorized user.
 
         :param date: A datetime object. 
+        :type date: datetime
         :param detail_level: The number of data points to include either 1sec or 1min. 
+        :type detail_level: string
         
         '''
         if not isinstance(date, datetime):
@@ -1887,9 +2056,13 @@ class FitbitClient:
         Returns the intraday time series for a given resource in the format requested. If your application has the appropriate access, your calls to a time series endpoint for a specific day (by using start and end dates on the same day or a period of 1d), the response will include extended intraday values with a one-minute detail level for that day. Unlike other time series calls that allow fetching data of other users, intraday data is available only for and to the authorized user.
 
         :param date: A datetime object. 
+        :type date: datetime
         :param detail_level: The number of data points to include either 1sec or 1min. 
+        :type detail_level: string
         :param start_time: The start of the period in the format of HH:mm. 
+        :type start_time: string
         :param end_time: The end time of the period in the format of HH:mm. 
+        :type end_time: string
         
         '''
         if not isinstance(date, datetime):
@@ -1911,6 +2084,7 @@ class FitbitClient:
         Deletes a user's sleep log entry with the given ID.
 
         :param log_id: The ID of the sleep log to be deleted. 
+        :type log_id: string
         
         '''
         required_scope = set(['activity', 'heartrate', 'location', 'nutrition', 'profile', 'settings', 'sleep', 'social', 'weight'])
@@ -1928,6 +2102,7 @@ class FitbitClient:
         The Get Sleep Logs by Date endpoint returns a summary and list of a user's sleep log entries (including naps) as well as detailed sleep entry data for a given day.
 
         :param date: A datetime object. 
+        :type date: datetime
         
         '''
         if not isinstance(date, datetime):
@@ -1949,7 +2124,9 @@ class FitbitClient:
         The Get Sleep Logs by Date Range endpoint returns a list of a user's sleep log entries (including naps) as well as detailed sleep entry data for a given date range (inclusive of start and end dates).
 
         :param base_date: A datetime object. 
+        :type base_date: datetime
         :param end_date: A datetime object. 
+        :type end_date: datetime
         
         '''
         if not isinstance(base_date, datetime):
@@ -1975,10 +2152,15 @@ class FitbitClient:
         The Get Sleep Logs List endpoint returns a list of a user's sleep logs (including naps) before or after a given day with offset, limit, and sort order.
 
         :param sort: The sort order of entries by date asc (ascending) or desc (descending). 
+        :type sort: string
         :param offset: The offset number of entries. 
+        :type offset: int
         :param limit: The maximum number of entries returned (maximum;100). 
+        :type limit: int
         :param before_date: A datetime object. 
+        :type before_date: datetime, optional
         :param after_date: A datetime object. 
+        :type after_date: datetime, optional
         
         '''
         if before_date and not isinstance(before_date, datetime):
@@ -2027,6 +2209,7 @@ class FitbitClient:
         Create or update the user's sleep goal and get a response in the JSON format.
 
         :param min_duration: Duration of sleep goal. 
+        :type min_duration: string
         
         '''
         required_scope = set(['activity', 'heartrate', 'location', 'nutrition', 'profile', 'settings', 'sleep', 'social', 'weight'])
@@ -2045,8 +2228,11 @@ class FitbitClient:
         Creates a log entry for a sleep event and returns a response in the format requested.
 
         :param start_time: Start time includes hours and minutes in the format HH:mm. 
+        :type start_time: string
         :param duration: Duration in milliseconds. 
+        :type duration: int
         :param date: A datetime object. 
+        :type date: datetime
         
         '''
         if not isinstance(date, datetime):
@@ -2071,6 +2257,7 @@ class FitbitClient:
         Retreives a list of a user's subscriptions for your application in the format requested. You can either fetch subscriptions for a specific collection or the entire list of subscriptions for the user. For best practice, make sure that your application maintains this list on your side and use this endpoint only to periodically ensure data consistency.
 
         :param collection_path: This is the resource of the collection to receive notifications from (foods, activities, sleep, or body). If not present, subscription will be created for all collections. If you have both all and specific collection subscriptions, you will get duplicate notifications on that collections' updates. Each subscriber can have only one subscription for a specific user's collection. 
+        :type collection_path: string
         
         '''
         required_scope = set(['activity', 'heartrate', 'location', 'nutrition', 'profile', 'settings', 'sleep', 'social', 'weight'])
@@ -2088,7 +2275,9 @@ class FitbitClient:
         Adds a subscription in your application so that users can get notifications and return a response in the format requested. The subscription-id value provides a way to associate an update with a particular user stream in your application.
 
         :param collection_path: This is the resource of the collection to receive notifications from (foods, activities, sleep, or body). If not present, subscription will be created for all collections. If you have both all and specific collection subscriptions, you will get duplicate notifications on that collections' updates. Each subscriber can have only one subscription for a specific user's collection. 
+        :type collection_path: string
         :param subscription_id: This is the unique ID of the subscription created by the API client application. Each ID must be unique across the entire set of subscribers and collections. The Fitbit servers will pass this ID back along with any notifications about the user indicated by the user parameter in the URL path. 
+        :type subscription_id: string
         
         '''
         required_scope = set(['activity', 'heartrate', 'location', 'nutrition', 'profile', 'settings', 'sleep', 'social', 'weight'])
@@ -2106,7 +2295,9 @@ class FitbitClient:
         Deletes a subscription for a user..
 
         :param collection_path: This is the resource of the collection to receive notifications from (foods, activities, sleep, or body). If not present, subscription will be created for all collections. If you have both all and specific collection subscriptions, you will get duplicate notifications on that collections' updates. Each subscriber can have only one subscription for a specific user's collection. 
+        :type collection_path: string
         :param subscription_id: This is the resource of the collection to receive notifications from (foods, activities, sleep, or body). If not present, subscription will be created for all collections. If you have both all and specific collection subscriptions, you will get duplicate notifications on that collections' updates. Each subscriber can have only one subscription for a specific user's collection. 
+        :type subscription_id: string
         
         '''
         required_scope = set(['activity', 'heartrate', 'location', 'nutrition', 'profile', 'settings', 'sleep', 'social', 'weight'])
@@ -2156,25 +2347,45 @@ class FitbitClient:
         Updates a user's profile using a form.
 
         :param gender: The sex of the user; (MALE/FEMALE/NA). 
+        :type gender: string, optional
         :param birthday: A datetime object. 
+        :type birthday: datetime, optional
         :param height: The height in the format X.XX in the unit system that corresponds to the Accept-Language header provided. 
+        :type height: string, optional
         :param about_me: This is a short description of user. 
+        :type about_me: string, optional
         :param fullname: The fullname of the user. 
+        :type fullname: string, optional
         :param country: The country of the user's residence. This is a two-character code. 
+        :type country: string, optional
         :param state: The US state of the user's residence. This is a two-character code if the country was or is set to US. 
+        :type state: string, optional
         :param city: The US city of the user's residence. 
+        :type city: string, optional
         :param stride_length_walking: Walking stride length in the format X.XX, where it is in the unit system that corresponds to the Accept-Language header provided. 
+        :type stride_length_walking: string, optional
         :param stride_length_running: Running stride length in the format X.XX, where it is in the unit system that corresponds to the Accept-Language header provided. 
+        :type stride_length_running: string, optional
         :param weight_unit: Default weight unit on website (which doesn't affect API); one of (en_US, en_GB, 'any' for METRIC). 
+        :type weight_unit: string, optional
         :param height_unit: Default height/distance unit on website (which doesn't affect API); one of (en_US, en_GB, 'any' for METRIC). 
+        :type height_unit: string, optional
         :param water_unit: Default water unit on website (which doesn't affect API); one of (en_US, en_GB, 'any' for METRIC). 
+        :type water_unit: string, optional
         :param glucose_unit: Default glucose unit on website (which doesn't affect API); one of (en_US, en_GB, 'any' for METRIC). 
+        :type glucose_unit: string, optional
         :param timezone: The timezone in the format 'America/Los_Angeles'. 
+        :type timezone: string, optional
         :param foods_locale: The food database locale in the format of xx.XX. 
+        :type foods_locale: string, optional
         :param locale: The locale of the website (country/language); one of the locales, currently – (en_US, fr_FR, de_DE, es_ES, en_GB, en_AU, en_NZ, ja_JP). 
+        :type locale: string, optional
         :param locale_lang: The Language in the format 'xx'. You should specify either locale or both - localeLang and localeCountry (locale is higher priority). 
+        :type locale_lang: string, optional
         :param locale_country: The Country in the format 'xx'. You should specify either locale or both - localeLang and localeCountry (locale is higher priority). 
+        :type locale_country: string, optional
         :param start_day_of_week: The Start day of the week, meaning what day the week should start on. Either Sunday or Monday. 
+        :type start_day_of_week: string, optional
         
         '''
         if birthday and not isinstance(birthday, datetime):
