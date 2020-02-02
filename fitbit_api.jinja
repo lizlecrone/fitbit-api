@@ -1,5 +1,6 @@
 from datetime import datetime
 from requests_oauthlib import OAuth2Session
+from fitbit_api.exceptions import FitbitException, InsufficientScope, RateLimitException
 
 ALL_SCOPES = [
     "activity",
@@ -15,41 +16,40 @@ ALL_SCOPES = [
 ]
 """All available scopes for initializing Fitbit client"""
 
-class FitbitException(Exception):
-    """All other exceptions subclass this FitbitException."""
-    pass
-
-class InsufficientScope(FitbitException):
-    """Thrown when your client was not initialized with the necessary scopes to make this request"""
-    pass
-
-class RateLimitException(FitbitException):
-    """Thrown when you've exceeded the limit
-
-    Fitbit only allows 150 requests per hour per client. ::
-
-        try:
-            client.get_foods_goal()
-        except RateLimitException as e:
-            print('Seconds until we can try again:' e.retry_after)
-    """
-    def __init__(self, retry_after, *args, **kwargs):
-        self.retry_after = retry_after
-        super().__init__(*args, **kwargs)
-
 class FitbitClient:
     """
+    A Fitbit API client
     """
     
-    OAuth2Session = OAuth2Session
+    _OAuth2Session = OAuth2Session
 
     def __init__(self, session):
         self.session = session
 
     @classmethod
     def create_using_token(cls, token, client_id, callback_uri, scope=None, new_token_callback=None):
+        '''
+        Initialize a client using an existing token.
+
+        :param token: A token provided by Fitbit. You can generate one with :ref:`oauth2-dance`.
+        :type token: dict
+
+        :param client_id: Client ID provided when you register your app with Fitbit.
+        :type client_id: str
+
+        :param callback_uri: Callback URI you provided when you registered your app with Fitbit.
+        :type callback_uri: str
+
+        :param scope: List of permissions requested for this client. If none, uses :any:`ALL_SCOPES`.
+        :type scope: List[str], optional
+
+        :param new_token_callback: Callback function for saving subsequent tokens provided by Fitbit.
+        :type new_token_callback: func, optional
+
+        :returns: A FitbitClient instance
+        '''
         scope = scope or ALL_SCOPES
-        session = cls.OAuth2Session(
+        session = cls._OAuth2Session(
             client_id=client_id,
             redirect_uri=callback_uri,
             scope=scope,
@@ -60,15 +60,52 @@ class FitbitClient:
 
     @classmethod
     def OAuth2_step_one(cls, client_id, callback_uri, scope=None):
+        '''
+        Initiate the OAuth2 dance.
+
+        :param client_id: Client ID provided when you register your app with Fitbit.
+        :type client_id: str
+
+        :param callback_uri: Callback URI you provided when you registered your app with Fitbit.
+        :type callback_uri: str
+
+        :param scope: List of permissions requested for this client. If none, uses :any:`ALL_SCOPES`.
+        :type scope: List[str], optional
+
+        :returns: Authorization URI where the user will need to navigate to grant your app access to their data.
+        '''
         scope = scope or ALL_SCOPES
-        session = cls.OAuth2Session(client_id=client_id, redirect_uri=callback_uri, scope=scope)
+        session = cls._OAuth2Session(client_id=client_id, redirect_uri=callback_uri, scope=scope)
         authorization_url, state = session.authorization_url('https://www.fitbit.com/oauth2/authorize')
         return authorization_url
 
     @classmethod
     def OAuth2_step_two(cls, client_id, client_secret, callback_uri, redirect_uri, scope=None, new_token_callback=None):
+        '''
+        Initialize a client by completing the OAuth2 dance.
+
+        :param client_id: Client ID provided when you register your app with Fitbit.
+        :type client_id: str
+
+        :param client_secret: Client Secret provided when you register your app with Fitbit.
+        :type client_secret: str
+
+        :param callback_uri: Callback URI you provided when you registered your app with Fitbit.
+        :type callback_uri: str
+
+        :param redirect_uri: URI the user was redirected to after they granted your app permission.
+        :type redirect_uri: str
+
+        :param scope: List of permissions requested for this client. If none, uses :any:`ALL_SCOPES`.
+        :type scope: List[str], optional
+
+        :param new_token_callback: Callback function for saving the initial and all subsequent refresh tokens provided by Fitbit.
+        :type new_token_callback: func, optional
+
+        :returns: A FitbitClient instance
+        '''
         scope = scope or ALL_SCOPES
-        session = cls.OAuth2Session(
+        session = cls._OAuth2Session(
             client_id=client_id,
             redirect_uri=callback_uri,
             scope=scope,
@@ -79,10 +116,11 @@ class FitbitClient:
             authorization_response=redirect_uri,
             client_secret=client_secret
         )
-        new_token_callback(token)
+        if new_token_callback:
+            new_token_callback(token)
         return cls(session)
 
-    def request(self, method, endpoint, params=None, full_response=False):
+    def _request(self, method, endpoint, params=None, full_response=False):
         url = 'https://api.fitbit.com'+endpoint
         params = params or {}
         response = self.session.request(method, url, params=params)
@@ -93,17 +131,17 @@ class FitbitClient:
         elif response.status_code == 429:
             raise RateLimitException(retry_after=response.headers['Retry-After'])
 
-    def get(self, endpoint, params=None, **kwargs):
-        return self.request('get', endpoint, params, **kwargs)
+    def _get(self, endpoint, params=None, **kwargs):
+        return self._request('get', endpoint, params, **kwargs)
 
-    def post(self, endpoint, params=None, **kwargs):
-        return self.request('post', endpoint, params, **kwargs)
+    def _post(self, endpoint, params=None, **kwargs):
+        return self._request('post', endpoint, params, **kwargs)
 
-    def delete(self, endpoint, params=None, **kwargs):
-        return self.request('delete', endpoint, params, **kwargs)
+    def _delete(self, endpoint, params=None, **kwargs):
+        return self._request('delete', endpoint, params, **kwargs)
 
-    def put(self, endpoint, params=None, **kwargs):
-        return self.request('put', endpoint, params, **kwargs)
+    def _put(self, endpoint, params=None, **kwargs):
+        return self._request('put', endpoint, params, **kwargs)
 
 {% for api in apis %}
     def {{ api.function }}(self{% for parameter in api.parameters %}, {{ parameter.python_name }}{% if not parameter.required %}=None{% endif %}{% endfor %}, **kwargs):
@@ -151,9 +189,9 @@ class FitbitClient:
         params['{{ param.name }}'] = {{ param.python_name }}
         {%- endif %}
         {%- endfor %}
-        return self.{{ api.method }}(endpoint, params=params, **kwargs)
+        return self._{{ api.method }}(endpoint, params=params, **kwargs)
         {%- else %}
 
-        return self.{{ api.method }}(endpoint, **kwargs)
+        return self._{{ api.method }}(endpoint, **kwargs)
         {%- endif %}
 {% endfor %}

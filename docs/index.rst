@@ -10,6 +10,7 @@ fitbit_api Documentation
    :maxdepth: 2
    :caption: Contents:
 
-
-.. automodule:: fitbit_api
-	:members:
+   quickstart
+   authentication
+   exception
+   classapi

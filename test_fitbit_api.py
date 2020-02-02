@@ -15,7 +15,7 @@ class FakeOAuth2Session:
         return '123456789'
 
 
-FitbitClient.OAuth2Session = FakeOAuth2Session
+FitbitClient._OAuth2Session = FakeOAuth2Session
 
 
 class TestFitbitClient:

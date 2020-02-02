@@ -1,5 +1,6 @@
 from datetime import datetime
 from requests_oauthlib import OAuth2Session
+from fitbit_api.exceptions import FitbitException, InsufficientScope, RateLimitException
 
 ALL_SCOPES = [
     "activity",
@@ -16,37 +17,11 @@ ALL_SCOPES = [
 """All available scopes for initializing Fitbit client"""
 
 
-class FitbitException(Exception):
-    """All other exceptions subclass this FitbitException."""
-    pass
-
-
-class InsufficientScope(FitbitException):
-    """Thrown when your client was not initialized with the necessary scopes to make this request"""
-    pass
-
-
-class RateLimitException(FitbitException):
-    """Thrown when you've exceeded the limit
-
-    Fitbit only allows 150 requests per hour per client. ::
-
-        try:
-            client.get_foods_goal()
-        except RateLimitException as e:
-            print('Seconds until we can try again:' e.retry_after)
-    """
-
-    def __init__(self, retry_after, *args, **kwargs):
-        self.retry_after = retry_after
-        super().__init__(*args, **kwargs)
-
-
 class FitbitClient:
     """
     """
 
-    OAuth2Session = OAuth2Session
+    _OAuth2Session = OAuth2Session
 
     def __init__(self, session):
         self.session = session
@@ -59,8 +34,28 @@ class FitbitClient:
             callback_uri,
             scope=None,
             new_token_callback=None):
+        '''
+        Initialize a client using an existing token.
+
+        :param token: A token provided by Fitbit. You can generate one with :ref:`oauth2-dance`.
+        :type token: dict
+
+        :param client_id: Client ID provided when you register your app with Fitbit.
+        :type client_id: str
+
+        :param callback_uri: Callback URI you provided when you registered your app with Fitbit.
+        :type callback_uri: str
+
+        :param scope: List of permissions requested for this client. If none, uses :any:`ALL_SCOPES`.
+        :type scope: List[str], optional
+
+        :param new_token_callback: Callback function for saving subsequent tokens provided by Fitbit.
+        :type new_token_callback: func, optional
+
+        :returns: A FitbitClient instance
+        '''
         scope = scope or ALL_SCOPES
-        session = cls.OAuth2Session(
+        session = cls._OAuth2Session(
             client_id=client_id,
             redirect_uri=callback_uri,
             scope=scope,
@@ -71,8 +66,22 @@ class FitbitClient:
 
     @classmethod
     def OAuth2_step_one(cls, client_id, callback_uri, scope=None):
+        '''
+        Initiate the OAuth2 dance.
+
+        :param client_id: Client ID provided when you register your app with Fitbit.
+        :type client_id: str
+
+        :param callback_uri: Callback URI you provided when you registered your app with Fitbit.
+        :type callback_uri: str
+
+        :param scope: List of permissions requested for this client. If none, uses :any:`ALL_SCOPES`.
+        :type scope: List[str], optional
+
+        :returns: Authorization URI where the user will need to navigate to grant your app access to their data.
+        '''
         scope = scope or ALL_SCOPES
-        session = cls.OAuth2Session(
+        session = cls._OAuth2Session(
             client_id=client_id,
             redirect_uri=callback_uri,
             scope=scope)
@@ -89,8 +98,31 @@ class FitbitClient:
             redirect_uri,
             scope=None,
             new_token_callback=None):
+        '''
+        Initialize a client by completing the OAuth2 dance.
+
+        :param client_id: Client ID provided when you register your app with Fitbit.
+        :type client_id: str
+
+        :param client_secret: Client Secret provided when you register your app with Fitbit.
+        :type client_secret: str
+
+        :param callback_uri: Callback URI you provided when you registered your app with Fitbit.
+        :type callback_uri: str
+
+        :param redirect_uri: URI the user was redirected to after they granted your app permission.
+        :type redirect_uri: str
+
+        :param scope: List of permissions requested for this client. If none, uses :any:`ALL_SCOPES`.
+        :type scope: List[str], optional
+
+        :param new_token_callback: Callback function for saving the initial and all subsequent refresh tokens provided by Fitbit.
+        :type new_token_callback: func, optional
+
+        :returns: A FitbitClient instance
+        '''
         scope = scope or ALL_SCOPES
-        session = cls.OAuth2Session(
+        session = cls._OAuth2Session(
             client_id=client_id,
             redirect_uri=callback_uri,
             scope=scope,
@@ -101,10 +133,11 @@ class FitbitClient:
             authorization_response=redirect_uri,
             client_secret=client_secret
             )
-        new_token_callback(token)
+        if new_token_callback:
+            new_token_callback(token)
         return cls(session)
 
-    def request(self, method, endpoint, params=None, full_response=False):
+    def _request(self, method, endpoint, params=None, full_response=False):
         url = 'https://api.fitbit.com' + endpoint
         params = params or {}
         response = self.session.request(method, url, params=params)
@@ -116,17 +149,17 @@ class FitbitClient:
             raise RateLimitException(
                 retry_after=response.headers['Retry-After'])
 
-    def get(self, endpoint, params=None, **kwargs):
-        return self.request('get', endpoint, params, **kwargs)
+    def _get(self, endpoint, params=None, **kwargs):
+        return self._request('get', endpoint, params, **kwargs)
 
-    def post(self, endpoint, params=None, **kwargs):
-        return self.request('post', endpoint, params, **kwargs)
+    def _post(self, endpoint, params=None, **kwargs):
+        return self._request('post', endpoint, params, **kwargs)
 
-    def delete(self, endpoint, params=None, **kwargs):
-        return self.request('delete', endpoint, params, **kwargs)
+    def _delete(self, endpoint, params=None, **kwargs):
+        return self._request('delete', endpoint, params, **kwargs)
 
-    def put(self, endpoint, params=None, **kwargs):
-        return self.request('put', endpoint, params, **kwargs)
+    def _put(self, endpoint, params=None, **kwargs):
+        return self._request('put', endpoint, params, **kwargs)
 
     def get_activities_by_date(self, date, **kwargs):
         '''Get Activity Summary by Date
@@ -160,7 +193,7 @@ class FitbitClient:
         endpoint = '/1/user/-/activities/date/{date}.json'.replace(
             '{date}', date)
 
-        return self.get(endpoint, **kwargs)
+        return self._get(endpoint, **kwargs)
 
     def get_activities_resource_by_date_range(
             self, resource_path, base_date, end_date, **kwargs):
@@ -226,7 +259,7 @@ class FitbitClient:
             '{end-date}',
             end_date)
 
-        return self.get(endpoint, **kwargs)
+        return self._get(endpoint, **kwargs)
 
     def get_activities_tracker_resource_by_date_range(
             self, resource_path, base_date, end_date, **kwargs):
@@ -287,7 +320,7 @@ class FitbitClient:
         endpoint = '/1/user/-/activities/tracker/{resource-path}/date/{base-date}/{end-date}.json'.replace(
             '{resource-path}', resource_path).replace('{base-date}', base_date).replace('{end-date}', end_date)
 
-        return self.get(endpoint, **kwargs)
+        return self._get(endpoint, **kwargs)
 
     def get_activities_resource_by_date_period(
             self, resource_path, date, period, **kwargs):
@@ -342,7 +375,7 @@ class FitbitClient:
         endpoint = '/1/user/-/activities/{resource-path}/date/{date}/{period}.json'.replace(
             '{resource-path}', resource_path).replace('{date}', date).replace('{period}', period)
 
-        return self.get(endpoint, **kwargs)
+        return self._get(endpoint, **kwargs)
 
     def get_activities_tracker_resource_by_date_period(
             self, resource_path, date, period, **kwargs):
@@ -397,7 +430,7 @@ class FitbitClient:
         endpoint = '/1/user/-/activities/tracker/{resource-path}/date/{date}/{period}.json'.replace(
             '{resource-path}', resource_path).replace('{date}', date).replace('{period}', period)
 
-        return self.get(endpoint, **kwargs)
+        return self._get(endpoint, **kwargs)
 
     def get_activities_resource_by_date_range_intraday(
             self, resource_path, base_date, end_date, detail_level, **kwargs):
@@ -456,7 +489,7 @@ class FitbitClient:
                 '{detail-level}',
             detail_level)
 
-        return self.get(endpoint, **kwargs)
+        return self._get(endpoint, **kwargs)
 
     def get_activities_resource_by_date_intraday(
             self, resource_path, date, detail_level, **kwargs):
@@ -505,7 +538,7 @@ class FitbitClient:
             '{detail-level}',
             detail_level)
 
-        return self.get(endpoint, **kwargs)
+        return self._get(endpoint, **kwargs)
 
     def get_activities_resource_by_date_range_time_series_intraday(
             self,
@@ -578,7 +611,7 @@ class FitbitClient:
                         '{end-time}',
             end_time)
 
-        return self.get(endpoint, **kwargs)
+        return self._get(endpoint, **kwargs)
 
     def get_activities_resource_by_date_time_series_intraday(
             self, resource_path, date, detail_level, start_time, end_time, **kwargs):
@@ -635,7 +668,7 @@ class FitbitClient:
                     '{end-time}',
             end_time)
 
-        return self.get(endpoint, **kwargs)
+        return self._get(endpoint, **kwargs)
 
     def add_activities_log(
             self,
@@ -702,7 +735,7 @@ class FitbitClient:
         params['distance'] = distance
         if distance_unit:
             params['distanceUnit'] = distance_unit
-        return self.post(endpoint, params=params, **kwargs)
+        return self._post(endpoint, params=params, **kwargs)
 
     def get_activities_log(self, **kwargs):
         '''Get Lifetime Stats
@@ -729,7 +762,7 @@ class FitbitClient:
 
         endpoint = '/1/user/-/activities.json'
 
-        return self.get(endpoint, **kwargs)
+        return self._get(endpoint, **kwargs)
 
     def delete_activities_log(self, activity_log_id, **kwargs):
         '''Delete Activity Log
@@ -759,7 +792,7 @@ class FitbitClient:
         endpoint = '/1/user/-/activities/{activity-log-id}.json'.replace(
             '{activity-log-id}', activity_log_id)
 
-        return self.delete(endpoint, **kwargs)
+        return self._delete(endpoint, **kwargs)
 
     def get_activities_log_list(
             self,
@@ -820,7 +853,7 @@ class FitbitClient:
         params['sort'] = sort
         params['offset'] = offset
         params['limit'] = limit
-        return self.get(endpoint, params=params, **kwargs)
+        return self._get(endpoint, params=params, **kwargs)
 
     def get_activities_t_c_x(
             self,
@@ -858,7 +891,7 @@ class FitbitClient:
         params = {}
         if include_partial_t_c_x:
             params['includePartialTCX'] = include_partial_t_c_x
-        return self.get(endpoint, params=params, **kwargs)
+        return self._get(endpoint, params=params, **kwargs)
 
     def get_activities_types(self, **kwargs):
         '''Browse Activity Types
@@ -885,7 +918,7 @@ class FitbitClient:
 
         endpoint = '/1/activities.json'
 
-        return self.get(endpoint, **kwargs)
+        return self._get(endpoint, **kwargs)
 
     def get_activities_type_detail(self, activity_id, **kwargs):
         '''Get Activity Type
@@ -915,7 +948,7 @@ class FitbitClient:
         endpoint = '/1/activities/{activity-id}.json'.replace(
             '{activity-id}', activity_id)
 
-        return self.get(endpoint, **kwargs)
+        return self._get(endpoint, **kwargs)
 
     def get_frequent_activities(self, **kwargs):
         '''Get Frequent Activities
@@ -942,7 +975,7 @@ class FitbitClient:
 
         endpoint = '/1/user/-/activities/frequent.json'
 
-        return self.get(endpoint, **kwargs)
+        return self._get(endpoint, **kwargs)
 
     def get_recent_activities(self, **kwargs):
         '''Get Recent Activity Types
@@ -969,7 +1002,7 @@ class FitbitClient:
 
         endpoint = '/1/user/-/activities/recent.json'
 
-        return self.get(endpoint, **kwargs)
+        return self._get(endpoint, **kwargs)
 
     def get_favorite_activities(self, **kwargs):
         '''Get Favorite Activities
@@ -996,7 +1029,7 @@ class FitbitClient:
 
         endpoint = '/1/user/-/activities/favorite.json'
 
-        return self.get(endpoint, **kwargs)
+        return self._get(endpoint, **kwargs)
 
     def delete_favorite_activities(self, activity_id, **kwargs):
         '''Delete Favorite Activity
@@ -1026,7 +1059,7 @@ class FitbitClient:
         endpoint = '/1/user/-/activities/favorite/{activity-id}.json'.replace(
             '{activity-id}', activity_id)
 
-        return self.delete(endpoint, **kwargs)
+        return self._delete(endpoint, **kwargs)
 
     def add_favorite_activities(self, activity_id, **kwargs):
         '''Add Favorite Activity
@@ -1056,7 +1089,7 @@ class FitbitClient:
         endpoint = '/1/user/-/activities/favorite/{activity-id}.json'.replace(
             '{activity-id}', activity_id)
 
-        return self.post(endpoint, **kwargs)
+        return self._post(endpoint, **kwargs)
 
     def get_activities_goals(self, period, **kwargs):
         '''Get Activity Goals
@@ -1086,7 +1119,7 @@ class FitbitClient:
         endpoint = '/1/user/-/activities/goals/{period}.json'.replace(
             '{period}', period)
 
-        return self.get(endpoint, **kwargs)
+        return self._get(endpoint, **kwargs)
 
     def add_update_activities_goals(self, period, type, value, **kwargs):
         '''Update Activity Goals
@@ -1122,7 +1155,7 @@ class FitbitClient:
         params = {}
         params['type'] = type
         params['value'] = value
-        return self.post(endpoint, params=params, **kwargs)
+        return self._post(endpoint, params=params, **kwargs)
 
     def get_body_fat_by_date(self, date, **kwargs):
         '''Get Body Fat Logs
@@ -1156,7 +1189,7 @@ class FitbitClient:
         endpoint = '/1/user/-/body/log/fat/date/{date}.json'.replace(
             '{date}', date)
 
-        return self.get(endpoint, **kwargs)
+        return self._get(endpoint, **kwargs)
 
     def get_body_fat_by_date_period(self, date, period, **kwargs):
         '''Get Body Fat Logs
@@ -1192,7 +1225,7 @@ class FitbitClient:
         endpoint = '/1/user/-/body/log/fat/date/{date}/{period}.json'.replace(
             '{date}', date).replace('{period}', period)
 
-        return self.get(endpoint, **kwargs)
+        return self._get(endpoint, **kwargs)
 
     def get_body_fat_by_date_range(self, base_date, end_date, **kwargs):
         '''Get Body Fat Logs
@@ -1234,7 +1267,7 @@ class FitbitClient:
         endpoint = '/1/user/-/body/log/fat/date/{base-date}/{end-date}.json'.replace(
             '{base-date}', base_date).replace('{end-date}', end_date)
 
-        return self.get(endpoint, **kwargs)
+        return self._get(endpoint, **kwargs)
 
     def add_body_fat_log(self, fat, date, time, **kwargs):
         '''Log Body Fat
@@ -1274,7 +1307,7 @@ class FitbitClient:
         params['fat'] = fat
         params['date'] = date
         params['time'] = time
-        return self.post(endpoint, params=params, **kwargs)
+        return self._post(endpoint, params=params, **kwargs)
 
     def delete_body_fat_log(self, body_fat_log_id, **kwargs):
         '''Delete Body Fat Log
@@ -1304,7 +1337,7 @@ class FitbitClient:
         endpoint = '/1/user/-/body/log/fat/{body-fat-log-id}.json'.replace(
             '{body-fat-log-id}', body_fat_log_id)
 
-        return self.delete(endpoint, **kwargs)
+        return self._delete(endpoint, **kwargs)
 
     def get_body_resource_by_date_period(
             self, resource_path, date, period, **kwargs):
@@ -1353,7 +1386,7 @@ class FitbitClient:
             '{period}',
             period)
 
-        return self.get(endpoint, **kwargs)
+        return self._get(endpoint, **kwargs)
 
     def get_body_resource_by_date_range(
             self,
@@ -1412,7 +1445,7 @@ class FitbitClient:
             '{end-date}',
             end_date)
 
-        return self.get(endpoint, **kwargs)
+        return self._get(endpoint, **kwargs)
 
     def get_body_goals(self, goal_type, **kwargs):
         '''Get Body Goals
@@ -1442,7 +1475,7 @@ class FitbitClient:
         endpoint = '/1/user/-/body/log/{goal-type}/goal.json'.replace(
             '{goal-type}', goal_type)
 
-        return self.get(endpoint, **kwargs)
+        return self._get(endpoint, **kwargs)
 
     def update_body_fat_goal(self, fat, **kwargs):
         '''Update Body Fat Goal
@@ -1472,7 +1505,7 @@ class FitbitClient:
         endpoint = '/1/user/-/body/log/fat/goal.json'
         params = {}
         params['fat'] = fat
-        return self.post(endpoint, params=params, **kwargs)
+        return self._post(endpoint, params=params, **kwargs)
 
     def update_weight_goal(
             self,
@@ -1506,7 +1539,7 @@ class FitbitClient:
         params['startWeight'] = start_weight
         if weight:
             params['weight'] = weight
-        return self.post(endpoint, params=params, **kwargs)
+        return self._post(endpoint, params=params, **kwargs)
 
     def get_weight_by_date(self, date, **kwargs):
         '''Get Weight Logs
@@ -1540,7 +1573,7 @@ class FitbitClient:
         endpoint = '/1/user/-/body/log/weight/date/{date}.json'.replace(
             '{date}', date)
 
-        return self.get(endpoint, **kwargs)
+        return self._get(endpoint, **kwargs)
 
     def get_weight_by_date_period(self, date, period, **kwargs):
         '''Get Body Fat Logs
@@ -1576,7 +1609,7 @@ class FitbitClient:
         endpoint = '/1/user/-/body/log/weight/date/{date}/{period}.json'.replace(
             '{date}', date).replace('{period}', period)
 
-        return self.get(endpoint, **kwargs)
+        return self._get(endpoint, **kwargs)
 
     def get_weight_by_date_range(self, base_date, end_date, **kwargs):
         '''Get Body Fat Logs
@@ -1618,7 +1651,7 @@ class FitbitClient:
         endpoint = '/1/user/-/body/log/weight/date/{base-date}/{end-date}.json'.replace(
             '{base-date}', base_date).replace('{end-date}', end_date)
 
-        return self.get(endpoint, **kwargs)
+        return self._get(endpoint, **kwargs)
 
     def add_weight_log(self, weight, date, time=None, **kwargs):
         '''Log Weight
@@ -1659,7 +1692,7 @@ class FitbitClient:
         params['date'] = date
         if time:
             params['time'] = time
-        return self.post(endpoint, params=params, **kwargs)
+        return self._post(endpoint, params=params, **kwargs)
 
     def delete_weight_log(self, body_weight_log_id, **kwargs):
         '''Delete Weight Log
@@ -1689,7 +1722,7 @@ class FitbitClient:
         endpoint = '/1/user/-/body/log/weight/{body-weight-log-id}.json'.replace(
             '{body-weight-log-id}', body_weight_log_id)
 
-        return self.delete(endpoint, **kwargs)
+        return self._delete(endpoint, **kwargs)
 
     def get_devices(self, **kwargs):
         '''Get Devices
@@ -1716,7 +1749,7 @@ class FitbitClient:
 
         endpoint = '/1/user/-/devices.json'
 
-        return self.get(endpoint, **kwargs)
+        return self._get(endpoint, **kwargs)
 
     def get_alarms(self, tracker_id, **kwargs):
         '''Get Alarms
@@ -1746,7 +1779,7 @@ class FitbitClient:
         endpoint = '/1/user/-/devices/tracker/{tracker-id}/alarms.json'.replace(
             '{tracker-id}', tracker_id)
 
-        return self.get(endpoint, **kwargs)
+        return self._get(endpoint, **kwargs)
 
     def add_alarms(
             self,
@@ -1795,7 +1828,7 @@ class FitbitClient:
         params['enabled'] = enabled
         params['recurring'] = recurring
         params['weekDays'] = week_days
-        return self.post(endpoint, params=params, **kwargs)
+        return self._post(endpoint, params=params, **kwargs)
 
     def update_alarms(
             self,
@@ -1855,7 +1888,7 @@ class FitbitClient:
         params['weekDays'] = week_days
         params['snoozeLength'] = snooze_length
         params['snoozeCount'] = snooze_count
-        return self.post(endpoint, params=params, **kwargs)
+        return self._post(endpoint, params=params, **kwargs)
 
     def delete_alarms(self, tracker_id, alarm_id, **kwargs):
         '''Delete Alarm
@@ -1887,7 +1920,7 @@ class FitbitClient:
         endpoint = '/1/user/-/devices/tracker/{tracker-id}/alarms/{alarm-id}.json'.replace(
             '{tracker-id}', tracker_id).replace('{alarm-id}', alarm_id)
 
-        return self.delete(endpoint, **kwargs)
+        return self._delete(endpoint, **kwargs)
 
     def get_foods_locales(self, **kwargs):
         '''Get Food Locales
@@ -1914,7 +1947,7 @@ class FitbitClient:
 
         endpoint = '/1/foods/locales.json'
 
-        return self.get(endpoint, **kwargs)
+        return self._get(endpoint, **kwargs)
 
     def get_foods_goal(self, **kwargs):
         '''Get Food Goals
@@ -1941,7 +1974,7 @@ class FitbitClient:
 
         endpoint = '/1/user/-/foods/log/goal.json'
 
-        return self.get(endpoint, **kwargs)
+        return self._get(endpoint, **kwargs)
 
     def add_update_foods_goal(
             self,
@@ -1984,7 +2017,7 @@ class FitbitClient:
             params['intensity'] = intensity
         if personalized:
             params['personalized'] = personalized
-        return self.post(endpoint, params=params, **kwargs)
+        return self._post(endpoint, params=params, **kwargs)
 
     def get_foods_by_date(self, date, **kwargs):
         '''Get Food Logs
@@ -2018,7 +2051,7 @@ class FitbitClient:
         endpoint = '/1/user/-/foods/log/date/{date}.json'.replace(
             '{date}', date)
 
-        return self.get(endpoint, **kwargs)
+        return self._get(endpoint, **kwargs)
 
     def get_water_by_date(self, date, **kwargs):
         '''Get Water Logs
@@ -2052,7 +2085,7 @@ class FitbitClient:
         endpoint = '/1/user/-/foods/log/water/date/{date}.json'.replace(
             '{date}', date)
 
-        return self.get(endpoint, **kwargs)
+        return self._get(endpoint, **kwargs)
 
     def get_water_goal(self, **kwargs):
         '''Get Water Goal
@@ -2079,7 +2112,7 @@ class FitbitClient:
 
         endpoint = '/1/user/-/foods/log/water/goal.json'
 
-        return self.get(endpoint, **kwargs)
+        return self._get(endpoint, **kwargs)
 
     def add_update_water_goal(self, target, **kwargs):
         '''Update Water Goal
@@ -2109,7 +2142,7 @@ class FitbitClient:
         endpoint = '/1/user/-/foods/log/water/goal.json'
         params = {}
         params['target'] = target
-        return self.post(endpoint, params=params, **kwargs)
+        return self._post(endpoint, params=params, **kwargs)
 
     def get_foods_by_date_range(
             self,
@@ -2168,7 +2201,7 @@ class FitbitClient:
             '{end-date}',
             end_date)
 
-        return self.get(endpoint, **kwargs)
+        return self._get(endpoint, **kwargs)
 
     def get_foods_resource_by_date_period(
             self, resource_path, date, period, **kwargs):
@@ -2217,7 +2250,7 @@ class FitbitClient:
             '{period}',
             period)
 
-        return self.get(endpoint, **kwargs)
+        return self._get(endpoint, **kwargs)
 
     def add_foods_log(
             self,
@@ -2290,7 +2323,7 @@ class FitbitClient:
             params['brandName'] = brand_name
         if calories:
             params['calories'] = calories
-        return self.post(endpoint, params=params, **kwargs)
+        return self._post(endpoint, params=params, **kwargs)
 
     def delete_foods_log(self, food_log_id, **kwargs):
         '''Delete Food Log
@@ -2320,7 +2353,7 @@ class FitbitClient:
         endpoint = '/1/user/-/foods/log/{food-log-id}.json'.replace(
             '{food-log-id}', food_log_id)
 
-        return self.delete(endpoint, **kwargs)
+        return self._delete(endpoint, **kwargs)
 
     def add_water_log(self, date, amount, unit=None, **kwargs):
         '''Log Water
@@ -2361,7 +2394,7 @@ class FitbitClient:
         params['amount'] = amount
         if unit:
             params['unit'] = unit
-        return self.post(endpoint, params=params, **kwargs)
+        return self._post(endpoint, params=params, **kwargs)
 
     def delete_water_log(self, water_log_id, **kwargs):
         '''Delete Water Log
@@ -2391,7 +2424,7 @@ class FitbitClient:
         endpoint = '/1/user/-/foods/log/water/{water-log-id}.json'.replace(
             '{water-log-id}', water_log_id)
 
-        return self.delete(endpoint, **kwargs)
+        return self._delete(endpoint, **kwargs)
 
     def update_water_log(self, water_log_id, amount, unit=None, **kwargs):
         '''Update Water Log
@@ -2428,7 +2461,7 @@ class FitbitClient:
         params['amount'] = amount
         if unit:
             params['unit'] = unit
-        return self.post(endpoint, params=params, **kwargs)
+        return self._post(endpoint, params=params, **kwargs)
 
     def get_favorite_foods(self, **kwargs):
         '''Get Favorite Foods
@@ -2455,7 +2488,7 @@ class FitbitClient:
 
         endpoint = '/1/user/-/foods/log/favorite.json'
 
-        return self.get(endpoint, **kwargs)
+        return self._get(endpoint, **kwargs)
 
     def get_frequent_foods(self, **kwargs):
         '''Get Frequent Foods
@@ -2482,7 +2515,7 @@ class FitbitClient:
 
         endpoint = '/1/user/-/foods/log/frequent.json'
 
-        return self.get(endpoint, **kwargs)
+        return self._get(endpoint, **kwargs)
 
     def add_favorite_food(self, food_id, **kwargs):
         '''Add Favorite Food
@@ -2512,7 +2545,7 @@ class FitbitClient:
         endpoint = '/1/user/-/foods/log/favorite/{food-id}.json'.replace(
             '{food-id}', food_id)
 
-        return self.post(endpoint, **kwargs)
+        return self._post(endpoint, **kwargs)
 
     def delete_favorite_food(self, food_id, **kwargs):
         '''Delete Favorite Food
@@ -2542,7 +2575,7 @@ class FitbitClient:
         endpoint = '/1/user/-/foods/log/favorite/{food-id}.json'.replace(
             '{food-id}', food_id)
 
-        return self.delete(endpoint, **kwargs)
+        return self._delete(endpoint, **kwargs)
 
     def get_meals(self, **kwargs):
         '''Get Meals
@@ -2569,7 +2602,7 @@ class FitbitClient:
 
         endpoint = '/1/user/-/meals.json'
 
-        return self.get(endpoint, **kwargs)
+        return self._get(endpoint, **kwargs)
 
     def add_meal(self, name, description, food_id, unit_id, amount, **kwargs):
         '''Create Meal
@@ -2611,7 +2644,7 @@ class FitbitClient:
         params['foodId'] = food_id
         params['unitId'] = unit_id
         params['amount'] = amount
-        return self.post(endpoint, params=params, **kwargs)
+        return self._post(endpoint, params=params, **kwargs)
 
     def update_meal(
             self,
@@ -2664,7 +2697,7 @@ class FitbitClient:
         params['foodId'] = food_id
         params['unitId'] = unit_id
         params['amount'] = amount
-        return self.post(endpoint, params=params, **kwargs)
+        return self._post(endpoint, params=params, **kwargs)
 
     def delete_meal(self, meal_id, **kwargs):
         '''Delete Meal
@@ -2694,7 +2727,7 @@ class FitbitClient:
         endpoint = '/1/user/-/meals/{meal-id}.json'.replace(
             '{meal-id}', meal_id)
 
-        return self.delete(endpoint, **kwargs)
+        return self._delete(endpoint, **kwargs)
 
     def get_recent_foods(self, **kwargs):
         '''Get Recent Foods
@@ -2721,7 +2754,7 @@ class FitbitClient:
 
         endpoint = '/1/user/-/foods/log/recent.json'
 
-        return self.get(endpoint, **kwargs)
+        return self._get(endpoint, **kwargs)
 
     def add_foods(
             self,
@@ -2776,7 +2809,7 @@ class FitbitClient:
             params['formType'] = form_type
         if description:
             params['description'] = description
-        return self.post(endpoint, params=params, **kwargs)
+        return self._post(endpoint, params=params, **kwargs)
 
     def delete_foods(self, food_id, **kwargs):
         '''Delete Custom Food
@@ -2806,7 +2839,7 @@ class FitbitClient:
         endpoint = '/1/user/-/foods/{food-id}.json'.replace(
             '{food-id}', food_id)
 
-        return self.delete(endpoint, **kwargs)
+        return self._delete(endpoint, **kwargs)
 
     def get_foods_info(self, food_id, **kwargs):
         '''Get Food
@@ -2835,7 +2868,7 @@ class FitbitClient:
 
         endpoint = '/1/foods/{food-id}.json'.replace('{food-id}', food_id)
 
-        return self.get(endpoint, **kwargs)
+        return self._get(endpoint, **kwargs)
 
     def get_foods_units(self, **kwargs):
         '''Get Food Units
@@ -2862,7 +2895,7 @@ class FitbitClient:
 
         endpoint = '/1/foods/units.json'
 
-        return self.get(endpoint, **kwargs)
+        return self._get(endpoint, **kwargs)
 
     def get_foods_list(self, query, **kwargs):
         '''Search Foods
@@ -2892,7 +2925,7 @@ class FitbitClient:
         endpoint = '/1/foods/search.json'
         params = {}
         params['query'] = query
-        return self.get(endpoint, params=params, **kwargs)
+        return self._get(endpoint, params=params, **kwargs)
 
     def get_friends(self, **kwargs):
         '''Get Friends
@@ -2919,7 +2952,7 @@ class FitbitClient:
 
         endpoint = '/1.1/user/-/friends.json'
 
-        return self.get(endpoint, **kwargs)
+        return self._get(endpoint, **kwargs)
 
     def get_friends_leaderboard(self, **kwargs):
         '''Get Friends Leaderboard
@@ -2946,7 +2979,7 @@ class FitbitClient:
 
         endpoint = '/1.1/user/-/leaderboard/friends.json'
 
-        return self.get(endpoint, **kwargs)
+        return self._get(endpoint, **kwargs)
 
     def get_friends_invitations(self, **kwargs):
         '''Get Friend Invitations
@@ -2973,7 +3006,7 @@ class FitbitClient:
 
         endpoint = '/1.1/user/-/friends/invitations.json'
 
-        return self.get(endpoint, **kwargs)
+        return self._get(endpoint, **kwargs)
 
     def create_friends_invitations(
             self,
@@ -3012,7 +3045,7 @@ class FitbitClient:
             params['invitedUserEmail'] = invited_user_email
         if invited_user_id:
             params['invitedUserId'] = invited_user_id
-        return self.post(endpoint, params=params, **kwargs)
+        return self._post(endpoint, params=params, **kwargs)
 
     def respond_friends_invitation(self, from_user_id, accept, **kwargs):
         '''Respond to Friend Invitation
@@ -3045,7 +3078,7 @@ class FitbitClient:
             '{from-user-id}', from_user_id)
         params = {}
         params['accept'] = accept
-        return self.post(endpoint, params=params, **kwargs)
+        return self._post(endpoint, params=params, **kwargs)
 
     def get_heart_by_date_period(self, date, period, **kwargs):
         '''Get Heart Rate Time Series
@@ -3081,7 +3114,7 @@ class FitbitClient:
         endpoint = '/1/user/-/activities/heart/date/{date}/{period}.json'.replace(
             '{date}', date).replace('{period}', period)
 
-        return self.get(endpoint, **kwargs)
+        return self._get(endpoint, **kwargs)
 
     def get_heart_by_date_range(self, base_date, end_date, **kwargs):
         '''Get Heart Rate Time Series
@@ -3118,7 +3151,7 @@ class FitbitClient:
         endpoint = '/1/user/-/activities/heart/date/{base-date}/{end-date}.json'.replace(
             '{base-date}', base_date).replace('{end-date}', end_date)
 
-        return self.get(endpoint, **kwargs)
+        return self._get(endpoint, **kwargs)
 
     def get_heart_by_date_range_intraday(
             self, date, end_date, detail_level, **kwargs):
@@ -3162,7 +3195,7 @@ class FitbitClient:
         endpoint = '/1/user/-/activities/heart/date/{date}/{end-date}/{detail-level}.json'.replace(
             '{date}', date).replace('{end-date}', end_date).replace('{detail-level}', detail_level)
 
-        return self.get(endpoint, **kwargs)
+        return self._get(endpoint, **kwargs)
 
     def get_heart_by_date_range_timestamp_intraday(
             self,
@@ -3225,7 +3258,7 @@ class FitbitClient:
                     '{end-time}',
             end_time)
 
-        return self.get(endpoint, **kwargs)
+        return self._get(endpoint, **kwargs)
 
     def get_heart_by_date_intraday(self, date, detail_level, **kwargs):
         '''Get Heart Rate Intraday Time Series
@@ -3261,7 +3294,7 @@ class FitbitClient:
         endpoint = '/1/user/-/activities/heart/date/{date}/1d/{detail-level}.json'.replace(
             '{date}', date).replace('{detail-level}', detail_level)
 
-        return self.get(endpoint, **kwargs)
+        return self._get(endpoint, **kwargs)
 
     def get_heart_by_date_timestamp_intraday(
             self, date, detail_level, start_time, end_time, **kwargs):
@@ -3309,7 +3342,7 @@ class FitbitClient:
                 '{end-time}',
             end_time)
 
-        return self.get(endpoint, **kwargs)
+        return self._get(endpoint, **kwargs)
 
     def delete_sleep(self, log_id, **kwargs):
         '''Delete Sleep Log
@@ -3339,7 +3372,7 @@ class FitbitClient:
         endpoint = '/1.2/user/-/sleep/{log-id}.json'.replace(
             '{log-id}', log_id)
 
-        return self.delete(endpoint, **kwargs)
+        return self._delete(endpoint, **kwargs)
 
     def get_sleep_by_date(self, date, **kwargs):
         '''Get Sleep Log
@@ -3372,7 +3405,7 @@ class FitbitClient:
 
         endpoint = '/1.2/user/-/sleep/date/{date}.json'.replace('{date}', date)
 
-        return self.get(endpoint, **kwargs)
+        return self._get(endpoint, **kwargs)
 
     def get_sleep_by_date_range(self, base_date, end_date, **kwargs):
         '''Get Sleep Logs by Date Range
@@ -3414,7 +3447,7 @@ class FitbitClient:
         endpoint = '/1.2/user/-/sleep/date/{base-date}/{end-date}.json'.replace(
             '{base-date}', base_date).replace('{end-date}', end_date)
 
-        return self.get(endpoint, **kwargs)
+        return self._get(endpoint, **kwargs)
 
     def get_sleep_list(
             self,
@@ -3475,7 +3508,7 @@ class FitbitClient:
         params['sort'] = sort
         params['offset'] = offset
         params['limit'] = limit
-        return self.get(endpoint, params=params, **kwargs)
+        return self._get(endpoint, params=params, **kwargs)
 
     def get_sleep_goal(self, **kwargs):
         '''Get Sleep Goal
@@ -3502,7 +3535,7 @@ class FitbitClient:
 
         endpoint = '/1.2/user/-/sleep/goal.json'
 
-        return self.get(endpoint, **kwargs)
+        return self._get(endpoint, **kwargs)
 
     def update_sleep_goal(self, min_duration, **kwargs):
         '''Update Sleep Goal
@@ -3532,7 +3565,7 @@ class FitbitClient:
         endpoint = '/1.2/user/-/sleep/goal.json'
         params = {}
         params['minDuration'] = min_duration
-        return self.post(endpoint, params=params, **kwargs)
+        return self._post(endpoint, params=params, **kwargs)
 
     def add_sleep(self, start_time, duration, date, **kwargs):
         '''Log Sleep
@@ -3572,7 +3605,7 @@ class FitbitClient:
         params['startTime'] = start_time
         params['duration'] = duration
         params['date'] = date
-        return self.post(endpoint, params=params, **kwargs)
+        return self._post(endpoint, params=params, **kwargs)
 
     def get_subscriptions_list(self, collection_path, **kwargs):
         '''Get a List of Subscriptions
@@ -3602,7 +3635,7 @@ class FitbitClient:
         endpoint = '/1/user/-/{collection-path}/apiSubscriptions.json'.replace(
             '{collection-path}', collection_path)
 
-        return self.get(endpoint, **kwargs)
+        return self._get(endpoint, **kwargs)
 
     def add_subscriptions(self, collection_path, subscription_id, **kwargs):
         '''Add a Subscription
@@ -3634,7 +3667,7 @@ class FitbitClient:
         endpoint = '/1/user/-/{collection-path}/apiSubscriptions/{subscription-id}.json'.replace(
             '{collection-path}', collection_path).replace('{subscription-id}', subscription_id)
 
-        return self.post(endpoint, **kwargs)
+        return self._post(endpoint, **kwargs)
 
     def delete_subscriptions(self, collection_path, subscription_id, **kwargs):
         '''Delete a Subscription
@@ -3666,7 +3699,7 @@ class FitbitClient:
         endpoint = '/1/user/-/{collection-path}/apiSubscriptions/{subscription-id}.json'.replace(
             '{collection-path}', collection_path).replace('{subscription-id}', subscription_id)
 
-        return self.delete(endpoint, **kwargs)
+        return self._delete(endpoint, **kwargs)
 
     def get_badges(self, **kwargs):
         '''Get Badges
@@ -3693,7 +3726,7 @@ class FitbitClient:
 
         endpoint = '/1/user/-/badges.json'
 
-        return self.get(endpoint, **kwargs)
+        return self._get(endpoint, **kwargs)
 
     def get_profile(self, **kwargs):
         '''Get Profile
@@ -3712,7 +3745,7 @@ class FitbitClient:
 
         endpoint = '/1/user/-/profile.json'
 
-        return self.get(endpoint, **kwargs)
+        return self._get(endpoint, **kwargs)
 
     def update_profile(
             self,
@@ -3806,4 +3839,4 @@ class FitbitClient:
 
         endpoint = '/1/user/-/profile.json'
 
-        return self.post(endpoint, **kwargs)
+        return self._post(endpoint, **kwargs)
