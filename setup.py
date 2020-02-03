@@ -1,6 +1,6 @@
 import setuptools
 
-with open("docs/quickstart.rst", "r") as fh:
+with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
@@ -10,7 +10,7 @@ setuptools.setup(
     author_email="lizlecrone@gmail.com",
     description="Fitbit API Client",
     long_description=long_description,
-    long_description_content_type="text/x-rst",
+    long_description_content_type="text/markdown",
     url="https://github.com/lizlecrone/fitbit-api",
     packages=[
     	'fitbit_api',
