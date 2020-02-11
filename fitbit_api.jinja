@@ -57,7 +57,6 @@ class FitbitClient:
         scope = scope or ALL_SCOPES
         session = cls._OAuth2Session(
             client_id=client_id,
-            client_secret=client_secret,
             redirect_uri=callback_uri,
             scope=scope,
             token=token,
@@ -114,7 +113,6 @@ class FitbitClient:
         scope = scope or ALL_SCOPES
         session = cls._OAuth2Session(
             client_id=client_id,
-            client_secret=client_secret,
             redirect_uri=callback_uri,
             scope=scope,
             token_updater=new_token_callback,
