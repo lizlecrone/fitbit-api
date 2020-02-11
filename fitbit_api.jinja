@@ -1,5 +1,7 @@
 from datetime import datetime
 from requests_oauthlib import OAuth2Session
+from oauthlib.oauth2.rfc6749.errors import TokenExpiredError
+from requests.auth import HTTPBasicAuth
 from fitbit_api.exceptions import FitbitException, InsufficientScope, RateLimitException
 
 ALL_SCOPES = [
@@ -23,11 +25,12 @@ class FitbitClient:
     
     _OAuth2Session = OAuth2Session
 
-    def __init__(self, session):
+    def __init__(self, session, client_secret):
         self.session = session
+        self.client_secret = client_secret
 
     @classmethod
-    def create_using_token(cls, token, client_id, callback_uri, scope=None, new_token_callback=None):
+    def create_using_token(cls, token, client_id, client_secret, callback_uri, scope=None, new_token_callback=None):
         '''
         Initialize a client using an existing token.
 
@@ -36,6 +39,9 @@ class FitbitClient:
 
         :param client_id: Client ID provided when you register your app with Fitbit.
         :type client_id: str
+
+        :param client_secret: Client Secret provided when you register your app with Fitbit.
+        :type client_secret: str
 
         :param callback_uri: Callback URI you provided when you registered your app with Fitbit.
         :type callback_uri: str
@@ -51,12 +57,13 @@ class FitbitClient:
         scope = scope or ALL_SCOPES
         session = cls._OAuth2Session(
             client_id=client_id,
+            client_secret=client_secret,
             redirect_uri=callback_uri,
             scope=scope,
             token=token,
             token_updater=new_token_callback,
         )
-        return cls(session)
+        return cls(session, client_secret)
 
     @classmethod
     def OAuth2_step_one(cls, client_id, callback_uri, scope=None):
@@ -107,6 +114,7 @@ class FitbitClient:
         scope = scope or ALL_SCOPES
         session = cls._OAuth2Session(
             client_id=client_id,
+            client_secret=client_secret,
             redirect_uri=callback_uri,
             scope=scope,
             token_updater=new_token_callback,
@@ -118,12 +126,25 @@ class FitbitClient:
         )
         if new_token_callback:
             new_token_callback(token)
-        return cls(session)
+        return cls(session, client_secret)
+
+    def refresh_token(self):
+        token = self.session.refresh_token(
+            'https://api.fitbit.com/oauth2/token',
+            auth=HTTPBasicAuth(self.session.client_id, self.client_secret)
+        )
+        if self.session.token_updater:
+            self.session.token_updater(token)
+        return token
 
     def _request(self, method, endpoint, params=None, full_response=False):
         url = 'https://api.fitbit.com'+endpoint
         params = params or {}
-        response = self.session.request(method, url, params=params)
+        try:
+            response = self.session.request(method, url, params=params)
+        except TokenExpiredError:
+            self.refresh_token()
+            response = self.session.request(method, url, params=params)
         if full_response:
             return response
         if response.ok:
